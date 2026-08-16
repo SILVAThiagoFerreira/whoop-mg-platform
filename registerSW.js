@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/whoop-mg-platform/sw.js', { scope: '/whoop-mg-platform/' })})}
