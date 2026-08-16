@@ -1,0 +1,58 @@
+# Matriz de funcionalidades: WHOOP 5.0/MG
+
+Legenda: **Oficial** = comportamento/documentação pública da WHOOP; **Derivado** = implementação semelhante inferida, sem equivalência alegada; **Experimental** = hipótese que requer validação. “Replicabilidade” trata de reproduzir uma experiência útil, não o modelo proprietário ou qualquer certificação.
+
+| Área / funcionalidade                      | Status da referência WHOOP             |       Replicabilidade nesta plataforma | Dados/infra necessários                                         | Limites e aceite sugerido                                                     |
+| ------------------------------------------ | -------------------------------------- | -------------------------------------: | --------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Sono, duração e estágios                   | Oficial                                |     Alta para fluxo; média para modelo | PPG/actigrafia ou API, eventos de sono                          | Validar contra referência rotulada; não chamar de polissonografia             |
+| Sleep Performance/necessidade              | Oficial                                |                                  Média | Sono, baseline, horário desejado                                | Nome e fórmula próprios; mostrar falta de dados                               |
+| Detecção automática de atividades          | Oficial                                |                                  Média | FC, movimento, catálogo e edição manual                         | Testar por modalidade; permitir correção do usuário                           |
+| Strain por atividade/dia                   | Oficial                                |                                  Média | FC contínua, zonas, duração, contexto                           | Não alegar reproduzir score WHOOP; publicar heurística/versão                 |
+| Carga por zonas de FC                      | Oficial                                |                                   Alta | FC, FCmáx/baseline, zonas configuráveis                         | Expor zonas e tratamento de artefatos                                         |
+| Recovery e readiness                       | Oficial                                |                                  Média | Sono, HRV, RHR, SpO2, temperatura                               | Índice local explicável; não prometer mesmo valor do WHOOP                    |
+| Ciclo sleep-to-sleep                       | Oficial                                |                                   Alta | Eventos de sono, timezone, atividades                           | Definir regras de corte e reprocessamento                                     |
+| Journal de comportamentos                  | Oficial                                |                                   Alta | Eventos manuais, catálogo, timestamps                           | Associação não implica causalidade; consentimento para saúde mental/medicação |
+| Coach/recomendações                        | Oficial                                |                                  Média | Tendências, contexto, motor de regras/LLM                       | Saída wellness, citações/justificativas, fallback seguro                      |
+| Health Monitor e tendências                | Oficial                                |                    Alta para dashboard | Séries temporais, baseline e qualidade                          | Distinguir observação de inferência                                           |
+| Stress fisiológico                         | Oficial                                |                            Baixa–média | FC/HRV, movimento, modelo validado                              | Protótipo sem diagnóstico; validar por população e contexto                   |
+| Passos                                     | Oficial no 5.0/MG                      |         Alta com sensor/Health Connect | Acelerômetro ou integração móvel                                | Acordar diferenças de dispositivo/posicionamento                              |
+| Calorias                                   | Oficial                                |                                  Média | FC, movimento, antropometria                                    | Faixa/estimativa; não usar para prescrição nutricional                        |
+| VO2 Max                                    | Oficial                                |                            Média–baixa | FC, velocidade/potência, treino suficiente                      | Método próprio; comparar com teste de referência                              |
+| Healthspan / idade fisiológica             | Oficial                                | Média para UX; baixa para equivalência | Sono, zonas, força, passos, RHR, VO2 Max, massa magra           | Nome próprio, fórmula publicada, sem benchmark clínico                        |
+| Pace of Aging                              | Oficial                                |                   Média para tendência | Histórico lento de Healthspan                                   | Não extrapolar longevidade individual                                         |
+| Saúde menstrual                            | Oficial                                |                                  Média | Logs, temperatura, ciclo                                        | Estimativa; não contracepção, concepção ou diagnóstico                        |
+| Relatório de saúde                         | Oficial                                |                   Alta para composição | Métricas versionadas, PDF/exportação                            | Revisão humana e linguagem não médica                                         |
+| Integração WHOOP via OAuth API             | Oficial/documentada                    |                                   Alta | OAuth, scopes, paginação, armazenamento seguro                  | Só dados autorizados; API não fornece modelos/sensores                        |
+| Webhooks sleep/workout/recovery            | Oficial/documentada                    |                                   Alta | Endpoint HTTPS, idempotência, retries                           | Processar v2/UUID e eventos deletados                                         |
+| Heart Screener com ECG                     | Oficial no MG/Life e regiões elegíveis |             Baixa; não replicar no MVP | ECG dedicado, contato, algoritmo validado, QMS/regulação        | Sem diagnóstico; não chamar PPG de ECG                                        |
+| IHRN/AFib notification                     | Oficial no MG/Life e regiões elegíveis |                            Muito baixa | ECG/PPG, classificador clínico, vigilância pós-mercado          | Requer autorização/regulação; protótipo apenas pesquisa                       |
+| Blood Pressure Insights                    | Oficial no MG/Life; wellness           |                                  Baixa | PPG, manguito para calibração, ML, protocolo clínico            | Exibir apenas tendência estimada; não tratar/diagnosticar                     |
+| Calibração com manguito                    | Oficial para BP Insights               |  Alta como workflow; não como validade | Três leituras, postura, cuff adequado, periodicidade            | Não reutilizar calibração fora do dispositivo/protocolo                       |
+| Qualidade de sinal e estados de calibração | Derivado da documentação               |                                   Alta | Flags por sensor/janela, regras de missingness                  | Bloquear conclusões com qualidade baixa                                       |
+| Baseline individual e intervalos           | Derivado                               |                                   Alta | 14–30+ dias, estatística robusta                                | Separar mudança real de artefato/adesão                                       |
+| Associação Journal → métrica               | Derivado                               |                                  Média | Eventos, janelas, confundidores, n suficiente                   | Linguagem “associado a”; evitar causalidade                                   |
+| Pontuação de prontidão própria             | Derivado                               |                                  Média | Sono, carga, recuperação, preferências                          | Score auditável, não “Recovery WHOOP”                                         |
+| Alertas personalizados                     | Derivado                               |                                   Alta | Thresholds, tendências, preferências, quiet hours               | Opt-in, explicação e supressão de ruído                                       |
+| Modelo próprio de estágios de sono         | Experimental                           |                                Incerta | Dataset anotado, PPG/IMU, ML e validação                        | Spike offline antes de produto; métricas por classe                           |
+| Modelo próprio de atividade/strain         | Experimental                           |                                Incerta | Dados multimodais, rótulos por esporte, validação               | Não confundir correlação com carga fisiológica                                |
+| Modelo próprio de Healthspan               | Experimental                           |                                Incerta | Coorte longitudinal e endpoints definidos                       | Não publicar idade/risco como fato clínico                                    |
+| Estimativa de pressão sem manguito         | Experimental/regulado                  |                  Não recomendada agora | PPG, calibração, coorte clínica, ISO/FDA/Anvisa conforme escopo | Bloqueada até parecer regulatório e validação                                 |
+| ECG/IHRN sem hardware dedicado             | Experimental/regulado                  |                        Não recomendada | Eletrodos, aquisição, classificador, QMS                        | Fora do escopo da plataforma atual                                            |
+
+## Fontes públicas consultadas
+
+- [WHOOP 5.0/MG — anúncio oficial](https://www.whoop.com/us/en/press-center/whoop-unveils-5.0-MG/)
+- [Membership Features & Benefits](https://support.whoop.com/s/article/Membership-Features-Benefits?language=en_US)
+- [WHOOP Basics](https://support.whoop.com/s/article/WHOOP-Basics)
+- [Automatic and Manual Activity Detection](https://support.whoop.com/s/article/Automatic-and-Manual-Activity-Detection)
+- [Journal Overview](https://support.whoop.com/s/article/WHOOP-Journal-Overview?language=en_US)
+- [Healthspan: WHOOP Age & Pace of Aging](https://support.whoop.com/s/article/Healthspan-WHOOP-Age-Pace-of-Aging-Guide?language=en_US)
+- [Calibration Timeline](https://support.whoop.com/s/article/Calibration-Timeline)
+- [Blood Pressure Insights](https://support.whoop.com/s/article/WHOOP-Life-Blood-Pressure-Insights)
+- [WHOOP API](https://developer.whoop.com/api/)
+- [WHOOP Webhooks](https://developer.whoop.com/docs/developing/webhooks/)
+- [WHOOP Pagination](https://developer.whoop.com/docs/developing/pagination/)
+
+## Decisão de escopo
+
+O caminho aprovado para uma implementação responsável é: API/integrações + diário + sono/atividade + tendências e calibração; depois índices próprios explicáveis. ECG, IHRN e pressão arterial ficam explicitamente fora do MVP e não podem ser descritos como equivalentes ao WHOOP MG sem hardware, estudo e autorização apropriados.
