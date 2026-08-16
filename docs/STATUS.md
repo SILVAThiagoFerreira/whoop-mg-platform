@@ -6,7 +6,7 @@ Dashboard PWA account-first, OAuth Google/Drive/Sheets por conta, esquema SQLite
 
 ## Partial
 
-GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; a branch `gh-pages` está `built`. O workflow `.github/workflows/deploy-pages.yml` valida `VITE_GOOGLE_CLIENT_ID` antes de publicar, mas o primeiro push dele aguarda escopo OAuth `workflow` e o segredo do repositório. Login/isolamento estão implementados, mas exigem esse client ID. Drive/Sheets estão acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não foram validados no hardware.
+GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; a branch `gh-pages` está `built`. O workflow `.github/workflows/deploy-pages.yml` está no checkout local, mas o primeiro push dele aguarda escopo OAuth `workflow`. Login/isolamento estão implementados, mas exigem `VITE_GOOGLE_CLIENT_ID`. Drive/Sheets estão acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não foram validados no hardware.
 
 ## Experimental
 
