@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,ts,js,html}\""
   },
   "dependencies": {
     "@vitejs/plugin-react": "6.0.5",
