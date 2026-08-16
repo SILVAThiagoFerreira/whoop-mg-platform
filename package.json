@@ -1,0 +1,21 @@
+{
+  "name": "whoop-mg-platform",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Independent personal analytics platform for WHOOP 5.0 MG",
+  "workspaces": [
+    "apps/web",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @whoop/web",
+    "build": "npm run build --workspace @whoop/web",
+    "lint": "npm run lint --workspace @whoop/web",
+    "typecheck": "npm run typecheck --workspace @whoop/web",
+    "test": "npm run test --workspace @whoop/web",
+    "format:check": "npm run format:check --workspace @whoop/web"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
