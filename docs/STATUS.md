@@ -6,7 +6,7 @@ Dashboard PWA estático, esquema SQLite, collector seguro, Apps Script scaffold,
 
 ## Partial
 
-GitHub Pages/CI criado, mas ainda precisa de repositório remoto e primeira execução. Drive/Sheets acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não validados no hardware.
+GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; a branch `gh-pages` está `built`. O workflow `.github/workflows/deploy-pages.yml` está no checkout local, mas o primeiro push dele aguarda escopo OAuth `workflow`. Drive/Sheets estão acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não foram validados no hardware.
 
 ## Experimental
 
@@ -30,4 +30,4 @@ Milestone 1 — fundação executável.
 
 ## Next actions
 
-Instalar dependências, rodar validações, criar/pushar repositório e verificar Pages.
+Manter o artefato Pages atualizado, autorizar o escopo `workflow`, sincronizar a branch principal completa e validar o hardware WHOOP.

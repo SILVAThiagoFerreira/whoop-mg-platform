@@ -4,7 +4,7 @@
 
 **Data:** 2026-08-16  
 **Classificação dos dados:** dados de saúde e de uso de dispositivo devem ser tratados como dados pessoais sensíveis.  
-**Base observada:** o checkout contém um frontend React/Vite mínimo, configuração PWA, `.env.example`, documentação de produto/pesquisa e diretórios reservados para collector, database, sync e MCP. Os módulos desses diretórios não estão materializados no snapshot auditado, e não há histórico Git acessível. A revisão combina os artefatos disponíveis com uma revisão de desenho/ameaças; os critérios abaixo são obrigatórios antes de declarar a implementação pronta.
+**Base observada:** o checkout contém um frontend React/Vite, configuração PWA, `.env.example`, documentação de produto/pesquisa, schema SQLite, collector seguro, sync/analytics e scaffold MCP. A revisão combina os artefatos disponíveis com uma revisão de desenho/ameaças; os critérios abaixo continuam obrigatórios antes de declarar a implementação pronta.
 
 ### Achados imediatos do snapshot
 
@@ -12,7 +12,7 @@
 - `apps/web/vite.config.ts` habilita `vite-plugin-pwa` com `registerType: autoUpdate` e `navigateFallback`. É necessário provar que o service worker não intercepta/cacheia respostas de API ou dados pessoais e que uma atualização não remove dados locais.
 - `apps/web/package.json` usa versões `latest`. Isso reduz reprodutibilidade e aumenta risco de supply chain; versões devem ser fixadas e atualizadas por processo explícito antes de produção.
 - `.env.example` contém IDs específicos de pasta/planilha. IDs não são credenciais, mas revelam alvos e podem facilitar abuso quando permissões estiverem erradas; usar placeholders em repositório público ou documentar que os IDs são deliberadamente públicos, mantendo ACL privada.
-- A pesquisa marca o histórico BLE do WHOOP 5.0/MG como `UNKNOWN`/experimental. O collector deve permanecer atrás de feature flag e nunca promover “HR ao vivo” a suporte histórico completo sem validação em hardware/firmware.
+- A pesquisa marca o histórico BLE do WHOOP 5.0/MG como `UNKNOWN`/experimental. O collector atual registra `BLOCKED` sem hardware/protocolo validados e nunca promove “HR ao vivo” a suporte histórico completo sem validação em hardware/firmware.
 
 ## Veredito
 
