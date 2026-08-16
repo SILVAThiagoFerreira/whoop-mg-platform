@@ -7,3 +7,4 @@
 - Adicionados schema SQLite, collector Python e estratégia incremental.
 - Adicionados Apps Script seguro por padrão, CI Pages e documentação.
 - Registrada pesquisa inicial de protocolo, recursos do app e auditoria arquitetural.
+- Publicada a primeira build estática em GitHub Pages e verificada por navegador.
