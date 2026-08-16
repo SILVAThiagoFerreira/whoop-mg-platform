@@ -19,3 +19,9 @@ O acesso ocorreu pelo navegador gerenciado, sem login do perfil pessoal. Isso co
 5. nunca enviar raw de alta frequência para Sheets.
 
 `apps/apps-script` mantém escrita desabilitada por padrão e usa Drive para listar arquivos/backups. Tokens não entram no frontend nem no Git.
+
+## Workspace por conta
+
+O PWA agora usa a Conta Google autenticada como identidade. Ele pesquisa arquivos privados criados pelo próprio app usando `appProperties.whoopAccountId = <Google sub>`. Cada conta recebe uma pasta e uma planilha próprias; o PWA não consulta o `Whoop_database` compartilhado legado automaticamente. Isso evita que uma planilha compartilhada se torne um banco multiusuário sem isolamento.
+
+O client ID OAuth é configuração pública do frontend. O access token é mantido somente em memória, expira rapidamente e precisa ser renovado por gesto do usuário. Refresh tokens não são armazenados no Pages.

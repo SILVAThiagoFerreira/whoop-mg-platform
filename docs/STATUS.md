@@ -2,11 +2,11 @@
 
 ## Working
 
-Dashboard PWA estático, esquema SQLite, collector seguro, Apps Script scaffold, pesquisa e documentação.
+Dashboard PWA account-first, OAuth Google/Drive/Sheets por conta, esquema SQLite, collector seguro, Apps Script scaffold, pesquisa e documentação.
 
 ## Partial
 
-GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; a branch `gh-pages` está `built`. O workflow `.github/workflows/deploy-pages.yml` está no checkout local, mas o primeiro push dele aguarda escopo OAuth `workflow`. Drive/Sheets estão acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não foram validados no hardware.
+GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; a branch `gh-pages` está `built`. O workflow `.github/workflows/deploy-pages.yml` está no checkout local, mas o primeiro push dele aguarda escopo OAuth `workflow`. Login/isolamento estão implementados, mas exigem `VITE_GOOGLE_CLIENT_ID`. Drive/Sheets estão acessíveis no navegador gerenciado, sem teste de escrita autenticada. Protocolos BLE ainda não foram validados no hardware.
 
 ## Experimental
 
@@ -26,7 +26,7 @@ Nenhuma lacuna real calculada; não há dados locais.
 
 ## Current milestone
 
-Milestone 1 — fundação executável.
+Milestone 1 — fundação account-first executável; início do Milestone 2.
 
 ## Next actions
 

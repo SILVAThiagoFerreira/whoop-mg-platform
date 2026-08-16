@@ -1,128 +1,227 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useGoogleAuth } from "./auth/useGoogleAuth";
 import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  ensureAccountWorkspace,
+  readAccountSnapshot,
+  type AccountMetric,
+  type AccountSnapshot,
+  type AccountWorkspace,
+} from "./data/accountStore";
 
-type Metric = {
+type View = "Today" | "Recovery" | "Sleep" | "Strain" | "More";
+type MetricDefinition = {
   label: string;
-  value: string;
+  key: string;
   unit?: string;
   tone: "lime" | "blue" | "orange" | "muted";
-  note: string;
+  emptyNote?: string;
 };
-type View = "Today" | "Recovery" | "Sleep" | "Strain" | "More";
-const chartData = [
-  { day: "Mon", recovery: 72, sleep: 81 },
-  { day: "Tue", recovery: 68, sleep: 74 },
-  { day: "Wed", recovery: 77, sleep: 86 },
-  { day: "Thu", recovery: 63, sleep: 69 },
-  { day: "Fri", recovery: 71, sleep: 78 },
-  { day: "Sat", recovery: 84, sleep: 91 },
-  { day: "Sun", recovery: 79, sleep: 88 },
-];
-const metrics: Metric[] = [
+const definitions: MetricDefinition[] = [
+  { label: "Recovery", key: "recovery", unit: "%", tone: "lime" },
+  { label: "Sleep", key: "sleep_duration", unit: "h", tone: "blue" },
+  { label: "Strain", key: "strain", tone: "orange" },
+  { label: "HRV", key: "hrv", unit: "ms", tone: "lime" },
+  { label: "Resting HR", key: "rhr", unit: "bpm", tone: "blue" },
+  { label: "Heart Rate", key: "heart_rate", unit: "bpm", tone: "orange" },
   {
-    label: "Recovery",
-    value: "79",
+    label: "SpO₂",
+    key: "spo2",
     unit: "%",
-    tone: "lime",
-    note: "DEMO DATA · derived mock",
+    tone: "muted",
+    emptyNote: "Not available yet",
   },
-  {
-    label: "Sleep",
-    value: "8:12",
-    unit: "h",
-    tone: "blue",
-    note: "DEMO DATA · mock session",
-  },
-  {
-    label: "Strain",
-    value: "12.4",
-    tone: "orange",
-    note: "DEMO DATA · not WHOOP score",
-  },
-  {
-    label: "HRV",
-    value: "54",
-    unit: "ms",
-    tone: "lime",
-    note: "DEMO DATA · mock shape",
-  },
-  {
-    label: "Resting HR",
-    value: "49",
-    unit: "bpm",
-    tone: "blue",
-    note: "DEMO DATA · mock shape",
-  },
-  {
-    label: "Heart Rate",
-    value: "72",
-    unit: "bpm",
-    tone: "orange",
-    note: "DEMO DATA · mock view",
-  },
-  { label: "SpO₂", value: "—", tone: "muted", note: "Not available yet" },
   {
     label: "Respiratory Rate",
-    value: "—",
+    key: "respiratory_rate",
+    unit: "rpm",
     tone: "muted",
-    note: "Not available yet",
+    emptyNote: "Not available yet",
   },
   {
     label: "Skin Temperature",
-    value: "—",
+    key: "skin_temperature",
+    unit: "°C",
     tone: "muted",
-    note: "Not available yet",
+    emptyNote: "Not available yet",
   },
   {
     label: "Battery",
-    value: "—",
+    key: "battery",
+    unit: "%",
     tone: "muted",
-    note: "Collector not connected",
+    emptyNote: "Collector not connected",
   },
 ];
-function MetricCard({ metric }: { metric: Metric }) {
+
+function AccountGate({
+  configured,
+  status,
+  error,
+  onSignIn,
+}: {
+  configured: boolean;
+  status: string;
+  error: string | null;
+  onSignIn: () => void;
+}) {
   return (
-    <article className={`metric-card ${metric.tone}`}>
-      <div className="metric-label">{metric.label}</div>
-      <div className="metric-value">
-        {metric.value}
-        <small>{metric.unit}</small>
+    <div className="account-gate">
+      <div className="account-mark">
+        <span>◎</span>
+        <div>
+          <div className="eyebrow">WHOOP MG LAB</div>
+          <strong>PRIVATE HEALTH DATA</strong>
+        </div>
       </div>
-      <div className="metric-note">{metric.note}</div>
+      <section className="account-card">
+        <div className="eyebrow">PERSONAL PERFORMANCE INTELLIGENCE</div>
+        <h1>
+          Your data.
+          <br />
+          <em>Your account.</em>
+        </h1>
+        <p className="account-lead">
+          Create or access your private workspace with Google. Your health data
+          is never shown before authentication.
+        </p>
+        <div className="account-security">
+          <span className="lock">⌾</span>
+          <div>
+            <strong>Private by default</strong>
+            <p>
+              Each Google account gets its own Drive folder and spreadsheet. The
+              app uses your account ID, never an email as a database key.
+            </p>
+          </div>
+        </div>
+        {!configured && (
+          <div className="setup-warning">
+            <strong>Login ainda não configurado</strong>
+            <p>
+              Configure <code>VITE_GOOGLE_CLIENT_ID</code> no build do Pages
+              para habilitar criação e acesso de contas.
+            </p>
+          </div>
+        )}
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
+        <button
+          className="google-button"
+          onClick={onSignIn}
+          disabled={!configured || status === "loading"}
+        >
+          {status === "loading"
+            ? "Abrindo o Google…"
+            : "Entrar ou criar conta com Google"}
+        </button>
+        <p className="account-disclaimer">
+          O login autoriza somente o acesso aos arquivos que o WHOOP MG Lab cria
+          na sua conta. Você pode revogar o acesso no Google a qualquer momento.
+        </p>
+      </section>
+      <p className="account-footer">
+        Unofficial personal analytics platform · no WHOOP subscription required
+      </p>
+    </div>
+  );
+}
+
+function MetricCard({
+  definition,
+  metric,
+}: {
+  definition: MetricDefinition;
+  metric?: AccountMetric;
+}) {
+  const value = metric?.value ?? "—";
+  const note = metric
+    ? `${metric.sourceType ?? "SOURCE UNKNOWN"}${metric.source ? ` · ${metric.source}` : ""}`
+    : (definition.emptyNote ?? "No data synchronized yet");
+  return (
+    <article className={`metric-card ${definition.tone}`}>
+      <div className="metric-label">{definition.label}</div>
+      <div className="metric-value">
+        {value}
+        <small>{metric?.unit ?? definition.unit}</small>
+      </div>
+      <div className="metric-note">{note}</div>
     </article>
   );
 }
-export function App() {
+
+function Dashboard({
+  user,
+  token,
+  onLogout,
+}: {
+  user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
+  token: string;
+  onLogout: () => void;
+}) {
   const [view, setView] = useState<View>("Today");
-  const [syncing, setSyncing] = useState(false);
-  const visibleMetrics = useMemo(
-    () =>
-      view === "Recovery"
-        ? metrics.filter((m) =>
-            ["Recovery", "HRV", "Resting HR"].includes(m.label),
-          )
-        : view === "Sleep"
-          ? metrics.filter((m) =>
-              ["Sleep", "Respiratory Rate", "Skin Temperature"].includes(
-                m.label,
-              ),
-            )
-          : view === "Strain"
-            ? metrics.filter((m) => ["Strain", "Heart Rate"].includes(m.label))
-            : metrics,
-    [view],
-  );
-  const startSync = () => {
-    setSyncing(true);
-    window.setTimeout(() => setSyncing(false), 1600);
+  const [workspace, setWorkspace] = useState<AccountWorkspace | null>(null);
+  const [snapshot, setSnapshot] = useState<AccountSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const refresh = async () => {
+    setRefreshing(true);
+    setError(null);
+    try {
+      const accountWorkspace =
+        workspace ?? (await ensureAccountWorkspace(token, user));
+      setWorkspace(accountWorkspace);
+      setSnapshot(await readAccountSnapshot(token, accountWorkspace));
+    } catch (reason) {
+      const message =
+        reason instanceof Error
+          ? reason.message
+          : "Não foi possível ler os dados desta conta.";
+      if (message === "AUTH_EXPIRED") onLogout();
+      else setError(message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
+  useEffect(() => {
+    void refresh();
+  }, []);
+  const metricMap = useMemo(
+    () =>
+      new Map(
+        (snapshot?.metrics ?? []).map((metric) => [
+          metric.metric.toLowerCase(),
+          metric,
+        ]),
+      ),
+    [snapshot],
+  );
+  const visibleDefinitions =
+    view === "Recovery"
+      ? definitions.filter((item) =>
+          ["recovery", "hrv", "rhr"].includes(item.key),
+        )
+      : view === "Sleep"
+        ? definitions.filter((item) =>
+            ["sleep_duration", "respiratory_rate", "skin_temperature"].includes(
+              item.key,
+            ),
+          )
+        : view === "Strain"
+          ? definitions.filter((item) =>
+              ["strain", "heart_rate"].includes(item.key),
+            )
+          : definitions;
+  const collectorLabel =
+    snapshot?.collectorStatus === "online"
+      ? "Collector online"
+      : snapshot?.collectorStatus === "offline"
+        ? "Collector offline"
+        : "Collector status unknown";
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -130,123 +229,126 @@ export function App() {
           <div className="eyebrow">WHOOP MG LAB</div>
           <h1>{view}</h1>
         </div>
-        <div className="status-pill">
-          <span className="status-dot" /> DEMO DATA
+        <div className="user-chip">
+          <span className="avatar">
+            {(user.name ?? user.email).slice(0, 1).toUpperCase()}
+          </span>
+          <span className="user-email">{user.email}</span>
+          <button className="logout-button" onClick={onLogout}>
+            Sair
+          </button>
         </div>
       </header>
       <main>
         <section className="hero-card">
           <div>
-            <div className="eyebrow">PERSONAL PERFORMANCE INTELLIGENCE</div>
+            <div className="eyebrow">PRIVATE ACCOUNT WORKSPACE</div>
             <h2>
               Know the signal.
               <br />
               <em>Keep the context.</em>
             </h2>
-            <p>Unofficial personal analytics platform for your WHOOP 5.0 MG.</p>
+            <p>{user.name ?? user.email} · dados separados por conta</p>
           </div>
-          <div className="hero-ring">
-            <strong>79</strong>
-            <span>recovery</span>
+          <div className="hero-ring locked-ring">
+            <strong>⌾</strong>
+            <span>private</span>
           </div>
         </section>
         <section className="sync-card">
           <div>
-            <div className="card-kicker">SYNC STATUS</div>
-            <h3>{syncing ? "Sync in progress" : "Collector offline"}</h3>
+            <div className="card-kicker">ACCOUNT DATA</div>
+            <h3>{loading ? "Opening private workspace" : collectorLabel}</h3>
             <p>
-              {syncing
-                ? "Connecting · requesting history · saving"
-                : "Connect a collector to import real device data."}
+              {loading
+                ? "Creating or finding your Drive workspace…"
+                : snapshot?.dataAvailable
+                  ? `Last sync: ${snapshot.lastSync ?? "unknown"}`
+                  : "No WHOOP data has been synchronized for this account yet."}
             </p>
           </div>
-          <button onClick={startSync} disabled={syncing}>
-            {syncing ? "SYNCING…" : "SYNC NOW"}
+          <button
+            onClick={() => void refresh()}
+            disabled={loading || refreshing}
+          >
+            {refreshing ? "REFRESHING…" : "REFRESH DATA"}
           </button>
         </section>
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
         <section className="section-heading">
           <div>
             <div className="card-kicker">TODAY AT A GLANCE</div>
-            <h3>Signals, clearly separated</h3>
+            <h3>Only this account</h3>
           </div>
-          <span>Last sync: never</span>
+          <span>
+            {snapshot?.dataAvailable ? "Measured/derived data" : "No data yet"}
+          </span>
         </section>
-        <section className="metrics-grid">
-          {visibleMetrics.map((metric) => (
-            <MetricCard key={metric.label} metric={metric} />
-          ))}
-        </section>
+        {loading ? (
+          <section className="empty-state">
+            <div className="loading-dots">•••</div>
+            <h3>Preparing your private data space</h3>
+            <p>
+              Nothing is displayed until the authorized account workspace is
+              ready.
+            </p>
+          </section>
+        ) : (
+          <section className="metrics-grid">
+            {visibleDefinitions.map((definition) => (
+              <MetricCard
+                key={definition.key}
+                definition={definition}
+                metric={metricMap.get(definition.key)}
+              />
+            ))}
+          </section>
+        )}
         <section className="chart-card">
           <div className="section-heading">
             <div>
               <div className="card-kicker">TREND VIEW</div>
-              <h3>Recovery vs. sleep</h3>
+              <h3>Account history</h3>
             </div>
-            <span>7 days · demo</span>
+            <span>Local collector → Drive → this account</span>
           </div>
-          <div className="chart-wrap">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="recovery" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#d6ff3f" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#d6ff3f" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="sleep" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#66a7ff" stopOpacity={0.32} />
-                    <stop offset="100%" stopColor="#66a7ff" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="day"
-                  stroke="#657080"
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis domain={[40, 100]} hide />
-                <Tooltip
-                  contentStyle={{
-                    background: "#151a22",
-                    border: "1px solid #2b3441",
-                    borderRadius: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="recovery"
-                  stroke="#d6ff3f"
-                  fill="url(#recovery)"
-                  strokeWidth={2}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="sleep"
-                  stroke="#66a7ff"
-                  fill="url(#sleep)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="legend">
-            <span>
-              <i className="lime-dot" /> Recovery
-            </span>
-            <span>
-              <i className="blue-dot" /> Sleep quality
-            </span>
-          </div>
-        </section>
-        <section className="source-note">
-          <span className="lock">◎</span>
-          <div>
-            <strong>Data provenance is visible by design.</strong>
+          <div className="empty-state compact">
+            <h3>
+              {snapshot?.dataAvailable
+                ? "Trend engine ready"
+                : "No trend data yet"}
+            </h3>
             <p>
-              This screen is safe demo data. Real measurements will be labeled
-              by source, quality, confidence and algorithm version.
+              {snapshot?.dataAvailable
+                ? "Historical charts will appear as the collector uploads timestamped samples."
+                : "Run the local collector to create the first synchronized sample."}
             </p>
           </div>
         </section>
+        {workspace && (
+          <section className="source-note">
+            <span className="lock">⌾</span>
+            <div>
+              <strong>Storage isolated to this Google account.</strong>
+              <p>
+                Workspace folder:{" "}
+                <a
+                  className="data-link"
+                  href={workspace.spreadsheetUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  open your private spreadsheet
+                </a>
+                . The Pages app does not contain your health database.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
       <nav className="bottom-nav">
         {(["Today", "Recovery", "Sleep", "Strain", "More"] as View[]).map(
@@ -273,5 +375,25 @@ export function App() {
         )}
       </nav>
     </div>
+  );
+}
+
+export function App() {
+  const auth = useGoogleAuth();
+  if (auth.status !== "signed_in" || !auth.user || !auth.accessToken)
+    return (
+      <AccountGate
+        configured={auth.configured}
+        status={auth.status}
+        error={auth.error}
+        onSignIn={() => void auth.signIn()}
+      />
+    );
+  return (
+    <Dashboard
+      user={auth.user}
+      token={auth.accessToken}
+      onLogout={auth.signOut}
+    />
   );
 }

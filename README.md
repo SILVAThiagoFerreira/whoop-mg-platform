@@ -12,6 +12,7 @@ Personal Performance Intelligence para coleta, armazenamento e análise local de
 - Esquema SQLite, checkpoints, gaps, pacotes brutos e sync engine em fundação.
 - Collector Python preparado para Bleak; descoberta e histórico real ainda dependem do hardware e do protocolo confirmado.
 - Integração Google modular com IDs fornecidos pelo proprietário; nenhum token é embutido no frontend.
+- Conta privada via Google OAuth: sem login não há métricas; cada conta recebe seu próprio workspace Drive/Sheets.
 
 ## Desenvolvimento
 
@@ -26,6 +27,8 @@ npm run build
 
 O site local fica em `http://localhost:5173/whoop-mg-platform/`.
 
+Para habilitar contas no desenvolvimento, copie `apps/web/.env.example` para `apps/web/.env` e preencha `VITE_GOOGLE_CLIENT_ID` com um OAuth Web Client ID. O client ID não é segredo; tokens nunca são persistidos no repositório ou no bundle.
+
 ## Collector
 
 ```powershell
@@ -39,6 +42,8 @@ O collector nunca afirma conexão sem uma conexão Bluetooth real. Instale `blea
 ## Privacidade
 
 Dados brutos, bancos SQLite, exports, credenciais e tokens ficam fora do Git. A publicação Pages contém apenas o shell e dados demo. Veja `docs/SECURITY.md` e `docs/PENDING_ACTIONS.md`.
+
+O pipeline completo está descrito em `docs/WHOOP_DATA_PIPELINE.md`.
 
 ## Documentação
 
