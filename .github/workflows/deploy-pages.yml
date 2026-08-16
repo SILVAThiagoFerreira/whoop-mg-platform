@@ -22,6 +22,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with: { path: apps/web/dist }
@@ -34,4 +36,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-

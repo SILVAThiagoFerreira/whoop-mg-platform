@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { App } from "./App";
 describe("WHOOP MG Lab demo shell", () => {
-  it("labels demo data and does not present unavailable metrics as values", () => {
+  it("does not expose health data before account authentication", () => {
     render(<App />);
-    expect(screen.getAllByText("DEMO DATA").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Not available yet").length).toBeGreaterThan(0);
+    expect(screen.getByText("Your data.")).toBeTruthy();
+    expect(screen.getByText("Private by default")).toBeTruthy();
+    expect(screen.queryByText("Recovery")).toBeNull();
   });
 });
