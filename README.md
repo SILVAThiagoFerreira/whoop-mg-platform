@@ -29,6 +29,10 @@ O site local fica em `http://localhost:5173/whoop-mg-platform/`.
 
 Para habilitar contas no desenvolvimento, copie `apps/web/.env.example` para `apps/web/.env` e preencha `VITE_GOOGLE_CLIENT_ID` com um OAuth Web Client ID. O client ID não é segredo; tokens nunca são persistidos no repositório ou no bundle.
 
+### Publicação no GitHub Pages
+
+O workflow de Pages usa o segredo de repositório `VITE_GOOGLE_CLIENT_ID` durante o build. Cadastre um OAuth Client ID do tipo Web Application no Google Cloud, autorize `https://silvathiagoferreira.github.io` e salve apenas o client ID em **Settings → Secrets and variables → Actions**. O workflow falha antes da publicação se esse segredo estiver ausente ou inválido.
+
 ## Collector
 
 ```powershell
