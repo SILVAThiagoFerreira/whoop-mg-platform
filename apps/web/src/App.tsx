@@ -764,6 +764,14 @@ function MoreView({
               WHOOP MG Lab, útil para abrir o desktop mesmo quando o Google
               estiver indisponível.
             </p>
+            <a
+              className="account-google-link"
+              href="https://myaccount.google.com/signinoptions/password"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Gerenciar senha da Conta Google ↗
+            </a>
             <form
               className="account-password-form"
               onSubmit={(event) => void submitPassword(event)}
