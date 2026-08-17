@@ -8,81 +8,505 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <section id="login-screen" class="login-screen" aria-labelledby="login-title">
+    <section
+      id="login-screen"
+      class="login-screen"
+      aria-labelledby="login-title"
+    >
       <div class="login-panel">
         <div class="login-header">
-          <div class="mini-brand"><span class="mini-mark">W</span><span>WHOOP MG LAB</span></div>
+          <div class="mini-brand">
+            <span class="mini-mark">W</span><span>WHOOP MG LAB</span>
+          </div>
           <span class="local-pill"><i></i> DESKTOP</span>
         </div>
         <div class="login-content">
           <span class="eyebrow">ACCOUNT ACCESS</span>
           <h2 id="login-title">Sign in</h2>
-          <p class="login-lede">Use Google for the account shared with the web app, or use the local password configured for this computer.</p>
+          <p class="login-lede">
+            Use Google for the account shared with the web app. A local password
+            is accepted only for accounts already provisioned on this computer.
+          </p>
           <form id="local-login" class="login-form">
             <label for="login-email">Email</label>
-            <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@email.com" required />
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@email.com"
+              required
+            />
             <label for="login-password">Password</label>
-            <div class="password-field"><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required /><button id="toggle-password" type="button" aria-label="Show password">◉</button></div>
-            <div class="form-meta"><label class="check-row"><input id="remember-me" type="checkbox" checked /> <span>Remember me</span></label><button type="button" class="text-button" id="forgot-password">Forgot password?</button></div>
-            <button class="login-button" type="submit">Sign in <span>→</span></button>
+            <div class="password-field">
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                required
+              /><button
+                id="toggle-password"
+                type="button"
+                aria-label="Show password"
+              >
+                ◉
+              </button>
+            </div>
+            <div class="form-meta">
+              <label class="check-row"
+                ><input id="remember-me" type="checkbox" checked />
+                <span>Remember me</span></label
+              ><button type="button" class="text-button" id="forgot-password">
+                Forgot password?
+              </button>
+            </div>
+            <button class="login-button" type="submit">
+              Sign in <span>→</span>
+            </button>
             <p id="login-error" class="form-message" role="alert"></p>
           </form>
-          <button id="google-login" class="google-login-button" type="button"><span class="google-g">G</span> Continue with Google <span>↗</span></button>
-          <div class="login-divider"><span></span><small>SECURE SESSION</small><span></span></div>
-          <p class="local-note"><span>⌁</span> Google sign-in opens the system browser and returns to this app. The Google password is never handled here.</p>
+          <button id="google-login" class="google-login-button" type="button">
+            <span class="google-g">G</span> Continue with Google <span>↗</span>
+          </button>
+          <div class="login-divider">
+            <span></span><small>SECURE SESSION</small><span></span>
+          </div>
+          <p class="local-note">
+            <span>⌁</span> Google sign-in opens the system browser and returns
+            to this app. The Google password is never handled here.
+          </p>
         </div>
-        <div class="login-footer"><span>© WHOOP COACH DESKTOP</span><span>v0.1 · LOCAL</span></div>
+        <div class="login-footer">
+          <span>© WHOOP COACH DESKTOP</span><span>v0.1 · LOCAL</span>
+        </div>
       </div>
     </section>
 
     <div id="app-shell" class="app-shell app-hidden">
       <aside class="sidebar">
         <div class="sidebar-top">
-          <div class="brand"><span class="brand-mark">W</span><div><strong>WHOOP</strong><span>PERFORMANCE SYSTEM</span></div></div>
+          <div class="brand">
+            <span class="brand-mark">W</span>
+            <div><strong>WHOOP</strong><span>PERFORMANCE SYSTEM</span></div>
+          </div>
           <div class="workspace-label">MY WHOOP</div>
           <nav class="nav" aria-label="Primary navigation">
-            <button class="nav-item active" data-view="dashboard"><span class="nav-icon">⌂</span><span>Overview</span></button>
-            <button class="nav-item" data-view="recovery"><span class="nav-icon recovery-icon">◔</span><span>Recovery</span></button>
-            <button class="nav-item" data-view="strain"><span class="nav-icon strain-icon">⌁</span><span>Strain</span></button>
-            <button class="nav-item" data-view="sleep"><span class="nav-icon sleep-icon">◒</span><span>Sleep</span></button>
-            <button class="nav-item" data-view="coach"><span class="nav-icon coach-icon">✦</span><span>Coach</span><span class="nav-new">NEW</span></button>
-            <button class="nav-item" data-view="more"><span class="nav-icon">•••</span><span>More</span></button>
+            <button class="nav-item active" data-view="dashboard">
+              <span class="nav-icon">⌂</span><span>Overview</span>
+            </button>
+            <button class="nav-item" data-view="recovery">
+              <span class="nav-icon recovery-icon">◔</span><span>Recovery</span>
+            </button>
+            <button class="nav-item" data-view="strain">
+              <span class="nav-icon strain-icon">⌁</span><span>Strain</span>
+            </button>
+            <button class="nav-item" data-view="sleep">
+              <span class="nav-icon sleep-icon">◒</span><span>Sleep</span>
+            </button>
+            <button class="nav-item" data-view="coach">
+              <span class="nav-icon coach-icon">✦</span><span>Coach</span
+              ><span class="nav-new">NEW</span>
+            </button>
+            <button class="nav-item" data-view="more">
+              <span class="nav-icon">•••</span><span>More</span>
+            </button>
           </nav>
         </div>
         <div class="sidebar-bottom">
-          <div class="device-chip"><span class="device-ring">◉</span><div><strong id="sidebar-device">WHOOP</strong><small id="sidebar-device-detail">Ready to connect</small></div><span class="device-live"></span></div>
-          <div class="privacy-card"><span class="privacy-icon">⌁</span><div><strong>Private by design</strong><p>Your data is stored locally on this device.</p></div></div>
-          <button id="logout" class="logout-button"><span>↪</span> Sign out</button>
-          <div class="sidebar-foot"><span class="pulse-dot"></span> LOCAL COACH <span class="sidebar-version">0.1</span></div>
+          <div class="device-chip">
+            <span class="device-ring">◉</span>
+            <div>
+              <strong id="sidebar-device">WHOOP</strong
+              ><small id="sidebar-device-detail">Ready to connect</small>
+            </div>
+            <span class="device-live"></span>
+          </div>
+          <div class="privacy-card">
+            <span class="privacy-icon">⌁</span>
+            <div>
+              <strong>Private by design</strong>
+              <p>Your data is stored locally on this device.</p>
+            </div>
+          </div>
+          <button id="logout" class="logout-button">
+            <span>↪</span> Sign out
+          </button>
+          <div class="sidebar-foot">
+            <span class="pulse-dot"></span> LOCAL COACH
+            <span class="sidebar-version">0.1</span>
+          </div>
         </div>
       </aside>
 
       <main class="main-content">
         <header class="topbar">
-          <div class="breadcrumb"><span id="page-label">OVERVIEW</span><b>/</b><span id="today-label">TODAY</span></div>
-          <div class="top-actions"><span id="status" class="status"><i></i><span>CONNECTING</span></span><button id="profile" class="profile-button" type="button"><span id="profile-initial">W</span><span id="profile-name">WHOOP MEMBER</span><b>⌄</b></button></div>
+          <div class="breadcrumb">
+            <span id="page-label">OVERVIEW</span><b>/</b
+            ><span id="today-label">TODAY</span>
+          </div>
+          <div class="top-actions">
+            <span id="status" class="status"
+              ><i></i><span>CONNECTING</span></span
+            ><button id="profile" class="profile-button" type="button">
+              <span id="profile-initial">W</span
+              ><span id="profile-name">WHOOP MEMBER</span><b>⌄</b>
+            </button>
+          </div>
         </header>
 
         <section id="dashboard-view" class="view active-view">
-          <div class="dashboard-heading"><div><span id="today-date" class="eyebrow">TODAY</span><h1>Overview</h1><p>Latest values received by the local agent.</p></div><button class="date-button" type="button"><span>Today</span><b>⌄</b></button></div>
-          <div class="dashboard-banner"><div><span class="eyebrow lime-eyebrow">DATA STATUS</span><h2 id="dashboard-title">No current readings</h2><p id="dashboard-note">Connect a device or run a local sync to load recovery, strain, and sleep values.</p></div><div class="data-status-list"><span><i></i> Account</span><span><i></i> Local agent</span><span><i></i> Device data</span></div></div>
-          <div class="section-heading"><div><span class="eyebrow">TODAY</span><h3>Performance overview</h3></div><span class="last-sync"><i class="pulse-dot"></i><span id="dashboard-updated">Waiting for sync</span></span></div>
-          <div class="score-grid">
-            <button class="score-card recovery-card" data-view="recovery"><span class="score-top"><span>RECOVERY</span><span class="score-symbol">◔</span></span><span class="score-value" id="dash-recovery">—</span><span class="score-caption" id="recovery-caption">No data yet</span><span class="score-progress"><i></i></span><span class="card-link">View recovery <b>→</b></span></button>
-            <button class="score-card strain-card" data-view="strain"><span class="score-top"><span>STRAIN</span><span class="score-symbol">⌁</span></span><span class="score-value" id="dash-strain">—</span><span class="score-caption" id="strain-caption">No data yet</span><span class="score-progress"><i></i></span><span class="card-link">View strain <b>→</b></span></button>
-            <button class="score-card sleep-card" data-view="sleep"><span class="score-top"><span>SLEEP</span><span class="score-symbol">◒</span></span><span class="score-value" id="dash-sleep">—</span><span class="score-caption" id="sleep-caption">No data yet</span><span class="score-progress"><i></i></span><span class="card-link">View sleep <b>→</b></span></button>
+          <div class="dashboard-heading">
+            <div>
+              <span id="today-date" class="eyebrow">TODAY</span>
+              <h1>Overview</h1>
+              <p>Latest values received by the local agent.</p>
+            </div>
+            <button class="date-button" type="button">
+              <span>Today</span><b>⌄</b>
+            </button>
           </div>
-          <div class="dashboard-lower"><section class="panel trend-panel"><div class="panel-title"><div><span class="eyebrow">PERSONAL BASELINE</span><h3>Your body over time</h3></div><span class="panel-badge">LAST 7 DAYS</span></div><div class="trend-visual"><div class="trend-labels"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="trend-chart"><span class="chart-line recovery-line"></span><span class="chart-line strain-line"></span><span class="chart-line sleep-line"></span><div class="chart-dashes"></div></div><div class="chart-legend"><span><i class="legend-recovery"></i> Recovery</span><span><i class="legend-strain"></i> Strain</span><span><i class="legend-sleep"></i> Sleep</span></div></div></section><section class="panel coach-teaser"><div class="panel-title"><div><span class="eyebrow">WHOOP COACH</span><h3>Your daily guide</h3></div><span class="spark">✦</span></div><p>Ask Coach anything about your sleep, recovery, or training load.</p><button class="primary-button go-coach" type="button">Open Coach <span>→</span></button></section></div>
+          <div class="dashboard-banner">
+            <div>
+              <span class="eyebrow lime-eyebrow">DATA STATUS</span>
+              <h2 id="dashboard-title">No current readings</h2>
+              <p id="dashboard-note">
+                Connect a device or run a local sync to load recovery, strain,
+                and sleep values.
+              </p>
+            </div>
+            <div class="data-status-list">
+              <span><i></i> Account</span><span><i></i> Local agent</span
+              ><span><i></i> Device data</span>
+            </div>
+          </div>
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">TODAY</span>
+              <h3>Performance overview</h3>
+            </div>
+            <span class="last-sync"
+              ><i class="pulse-dot"></i
+              ><span id="dashboard-updated">Waiting for sync</span></span
+            >
+          </div>
+          <div class="score-grid">
+            <button class="score-card recovery-card" data-view="recovery">
+              <span class="score-top"
+                ><span>RECOVERY</span><span class="score-symbol">◔</span></span
+              ><span class="score-value" id="dash-recovery">—</span
+              ><span class="score-caption" id="recovery-caption"
+                >No data yet</span
+              ><span class="score-progress"><i></i></span
+              ><span class="card-link">View recovery <b>→</b></span>
+            </button>
+            <button class="score-card strain-card" data-view="strain">
+              <span class="score-top"
+                ><span>STRAIN</span><span class="score-symbol">⌁</span></span
+              ><span class="score-value" id="dash-strain">—</span
+              ><span class="score-caption" id="strain-caption">No data yet</span
+              ><span class="score-progress"><i></i></span
+              ><span class="card-link">View strain <b>→</b></span>
+            </button>
+            <button class="score-card sleep-card" data-view="sleep">
+              <span class="score-top"
+                ><span>SLEEP</span><span class="score-symbol">◒</span></span
+              ><span class="score-value" id="dash-sleep">—</span
+              ><span class="score-caption" id="sleep-caption">No data yet</span
+              ><span class="score-progress"><i></i></span
+              ><span class="card-link">View sleep <b>→</b></span>
+            </button>
+          </div>
+          <div class="dashboard-lower">
+            <section class="panel trend-panel">
+              <div class="panel-title">
+                <div>
+                  <span class="eyebrow">PERSONAL BASELINE</span>
+                  <h3>Your body over time</h3>
+                </div>
+                <span class="panel-badge">LAST 7 DAYS</span>
+              </div>
+              <div class="trend-visual">
+                <div class="trend-labels">
+                  <span>100</span><span>75</span><span>50</span><span>25</span
+                  ><span>0</span>
+                </div>
+                <div class="trend-chart">
+                  <span class="chart-line recovery-line"></span
+                  ><span class="chart-line strain-line"></span
+                  ><span class="chart-line sleep-line"></span>
+                  <div class="chart-dashes"></div>
+                </div>
+                <div class="chart-legend">
+                  <span><i class="legend-recovery"></i> Recovery</span
+                  ><span><i class="legend-strain"></i> Strain</span
+                  ><span><i class="legend-sleep"></i> Sleep</span>
+                </div>
+              </div>
+            </section>
+            <section class="panel coach-teaser">
+              <div class="panel-title">
+                <div>
+                  <span class="eyebrow">WHOOP COACH</span>
+                  <h3>Your daily guide</h3>
+                </div>
+                <span class="spark">✦</span>
+              </div>
+              <p>
+                Ask Coach anything about your sleep, recovery, or training load.
+              </p>
+              <button class="primary-button go-coach" type="button">
+                Open Coach <span>→</span>
+              </button>
+            </section>
+          </div>
         </section>
 
-        <section id="recovery-view" class="view detail-view"><div class="section-intro"><span class="eyebrow recovery-eyebrow">RECOVERY</span><h2>How ready are you<br /><em>for today?</em></h2><p>Recovery is your body's ability to perform today, based on the signals that matter most.</p></div><div class="detail-grid"><section class="panel detail-score-panel recovery-panel"><div class="detail-score"><span>RECOVERY SCORE</span><strong id="recovery-detail-score">—</strong><small>Waiting for local data</small></div><div class="ring ring-recovery"><span>◔</span></div></section><section class="panel insight-panel"><span class="eyebrow">YOUR SIGNALS</span><h3>Build your baseline</h3><p>Once your WHOOP data is synced, you'll see HRV, resting heart rate, and sleep performance here.</p><div class="signal-row"><span>HRV</span><strong id="dash-hrv">—</strong></div><div class="signal-row"><span>Resting heart rate</span><strong id="dash-rhr">—</strong></div></section></div></section>
-        <section id="strain-view" class="view detail-view"><div class="section-intro"><span class="eyebrow strain-eyebrow">STRAIN</span><h2>Find your<br /><em>optimal load.</em></h2><p>Track how much stress your body is under and make every effort count.</p></div><div class="detail-grid"><section class="panel detail-score-panel strain-panel"><div class="detail-score"><span>DAY STRAIN</span><strong id="strain-detail-score">—</strong><small>Waiting for local data</small></div><div class="ring ring-strain"><span>⌁</span></div></section><section class="panel insight-panel"><span class="eyebrow">TODAY'S LOAD</span><h3>Train with intention</h3><p>Your strain target will appear after the first local sync. No scores are invented when data is missing.</p><div class="load-meter"><i></i></div><div class="meter-caption"><span>Low</span><span>Optimal</span><span>High</span></div></section></div></section>
-        <section id="sleep-view" class="view detail-view"><div class="section-intro"><span class="eyebrow sleep-eyebrow">SLEEP</span><h2>Recover while<br /><em>you recharge.</em></h2><p>Understand how much sleep you need, how well you slept, and what to do next.</p></div><div class="detail-grid"><section class="panel detail-score-panel sleep-panel"><div class="detail-score"><span>SLEEP PERFORMANCE</span><strong id="sleep-detail-score">—</strong><small>Waiting for local data</small></div><div class="ring ring-sleep"><span>◒</span></div></section><section class="panel insight-panel"><span class="eyebrow">SLEEP COACH</span><h3>Make tonight count</h3><p>Sleep need, consistency, and performance insights will be calculated from your personal history.</p><div class="sleep-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="meter-caption"><span>Mon</span><span>Sun</span></div></section></div></section>
+        <section id="recovery-view" class="view detail-view">
+          <div class="section-intro">
+            <span class="eyebrow recovery-eyebrow">RECOVERY</span>
+            <h2>How ready are you<br /><em>for today?</em></h2>
+            <p>
+              Recovery is your body's ability to perform today, based on the
+              signals that matter most.
+            </p>
+          </div>
+          <div class="detail-grid">
+            <section class="panel detail-score-panel recovery-panel">
+              <div class="detail-score">
+                <span>RECOVERY SCORE</span
+                ><strong id="recovery-detail-score">—</strong
+                ><small>Waiting for local data</small>
+              </div>
+              <div class="ring ring-recovery"><span>◔</span></div>
+            </section>
+            <section class="panel insight-panel">
+              <span class="eyebrow">YOUR SIGNALS</span>
+              <h3>Build your baseline</h3>
+              <p>
+                Once your WHOOP data is synced, you'll see HRV, resting heart
+                rate, and sleep performance here.
+              </p>
+              <div class="signal-row">
+                <span>HRV</span><strong id="dash-hrv">—</strong>
+              </div>
+              <div class="signal-row">
+                <span>Resting heart rate</span><strong id="dash-rhr">—</strong>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section id="strain-view" class="view detail-view">
+          <div class="section-intro">
+            <span class="eyebrow strain-eyebrow">STRAIN</span>
+            <h2>Find your<br /><em>optimal load.</em></h2>
+            <p>
+              Track how much stress your body is under and make every effort
+              count.
+            </p>
+          </div>
+          <div class="detail-grid">
+            <section class="panel detail-score-panel strain-panel">
+              <div class="detail-score">
+                <span>DAY STRAIN</span
+                ><strong id="strain-detail-score">—</strong
+                ><small>Waiting for local data</small>
+              </div>
+              <div class="ring ring-strain"><span>⌁</span></div>
+            </section>
+            <section class="panel insight-panel">
+              <span class="eyebrow">TODAY'S LOAD</span>
+              <h3>Train with intention</h3>
+              <p>
+                Your strain target will appear after the first local sync. No
+                scores are invented when data is missing.
+              </p>
+              <div class="load-meter"><i></i></div>
+              <div class="meter-caption">
+                <span>Low</span><span>Optimal</span><span>High</span>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section id="sleep-view" class="view detail-view">
+          <div class="section-intro">
+            <span class="eyebrow sleep-eyebrow">SLEEP</span>
+            <h2>Recover while<br /><em>you recharge.</em></h2>
+            <p>
+              Understand how much sleep you need, how well you slept, and what
+              to do next.
+            </p>
+          </div>
+          <div class="detail-grid">
+            <section class="panel detail-score-panel sleep-panel">
+              <div class="detail-score">
+                <span>SLEEP PERFORMANCE</span
+                ><strong id="sleep-detail-score">—</strong
+                ><small>Waiting for local data</small>
+              </div>
+              <div class="ring ring-sleep"><span>◒</span></div>
+            </section>
+            <section class="panel insight-panel">
+              <span class="eyebrow">SLEEP COACH</span>
+              <h3>Make tonight count</h3>
+              <p>
+                Sleep need, consistency, and performance insights will be
+                calculated from your personal history.
+              </p>
+              <div class="sleep-bars">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <div class="meter-caption"><span>Mon</span><span>Sun</span></div>
+            </section>
+          </div>
+        </section>
 
-        <section id="coach-view" class="view coach-view"><div class="section-intro"><span class="eyebrow">YOUR PERSONAL GUIDE</span><h2>Meet your<br /><em>Whoop Coach.</em></h2><p>Ask questions and get context from the data stored in your local performance system.</p></div><section class="chat-card"><div class="chat-toolbar"><div class="coach-avatar">W</div><div><strong>Whoop Coach</strong><span id="chat-subtitle">Local memory · ready to talk</span></div><span class="chat-lock">⌁ LOCAL</span></div><div id="messages" class="messages"><article class="message assistant"><label>WHOOP COACH</label><p>Hi. I'm your local performance guide. Ask me about your state, history, or patterns when data is available.</p></article></div><form id="composer"><textarea id="input" rows="2" placeholder="Ask your Coach…"></textarea><button id="send" class="primary-button" type="submit">Send <span>↑</span></button></form><small>Your physiological data stays on this computer.</small></section></section>
+        <section id="coach-view" class="view coach-view">
+          <div class="section-intro">
+            <span class="eyebrow">YOUR PERSONAL GUIDE</span>
+            <h2>Meet your<br /><em>Whoop Coach.</em></h2>
+            <p>
+              Ask questions and get context from the data stored in your local
+              performance system.
+            </p>
+          </div>
+          <section class="chat-card">
+            <div class="chat-toolbar">
+              <div class="coach-avatar">W</div>
+              <div>
+                <strong>Whoop Coach</strong
+                ><span id="chat-subtitle">Local memory · ready to talk</span>
+              </div>
+              <span class="chat-lock">⌁ LOCAL</span>
+            </div>
+            <div id="messages" class="messages">
+              <article class="message assistant">
+                <label>WHOOP COACH</label>
+                <p>
+                  Hi. I'm your local performance guide. Ask me about your state,
+                  history, or patterns when data is available.
+                </p>
+              </article>
+            </div>
+            <form id="composer">
+              <textarea
+                id="input"
+                rows="2"
+                placeholder="Ask your Coach…"
+              ></textarea
+              ><button id="send" class="primary-button" type="submit">
+                Send <span>↑</span>
+              </button>
+            </form>
+            <small>Your physiological data stays on this computer.</small>
+          </section>
+        </section>
 
-        <section id="more-view" class="view more-view"><div class="section-intro"><span class="eyebrow">MORE</span><h2>Your system,<br /><em>your control.</em></h2><p>Manage your local connection, backups, and performance model from one private workspace.</p></div><div class="data-grid"><section class="panel device-panel"><div class="panel-title"><div><span class="eyebrow">BLUETOOTH LOW ENERGY</span><h3>Connect WHOOP</h3></div><span id="scan-state" class="panel-badge">READ ONLY</span></div><div class="device-visual">⌁</div><p id="scan-result">No search has been run this session.</p><button id="scan" class="primary-button" type="button">Find devices <span>⌁</span></button><small>Read-only discovery. No write command is sent to your band.</small></section><section class="panel storage-panel"><div class="panel-title"><div><span class="eyebrow">LOCAL STORAGE</span><h3>System memory</h3></div><span class="panel-badge">PC FIRST</span></div><div class="storage-row"><span>Physiological SQLite</span><strong>data/whoop.db</strong></div><div class="storage-row"><span>Original data</span><strong>data/raw/</strong></div><div class="storage-row"><span>Local model</span><strong>whoop-coach:0.1</strong></div><p class="panel-note">RAW → validated → normalized → features → Coach.</p><button class="ghost-button full-button" id="backup-hint" type="button">Backup instructions <span>→</span></button></section></div><div class="more-grid"><section class="panel sync-panel"><div class="panel-title"><div><span class="eyebrow">SYNC STATUS</span><h3>Keep a local copy</h3></div><span id="sync-badge" class="panel-badge">LOCAL</span></div><div class="sync-status-line"><span>WHOOP offload</span><strong id="sync-ble">not implemented</strong></div><div class="sync-status-line"><span>Google auxiliary copy</span><strong id="sync-google">not configured</strong></div><div class="sync-status-line"><span>Last copy</span><strong id="sync-last">none</strong></div><button id="sync-now" class="primary-button" type="button">Sync auxiliary copy <span>↻</span></button><small id="sync-result">The PC remains the primary source.</small></section><section class="panel online-panel"><span class="eyebrow">WHOOP COACH WEB</span><h3>Open your online dashboard</h3><p>Use the hosted dashboard for a broader view. Your local Coach remains available here.</p><button id="online" class="ghost-button" type="button">Open online dashboard <span>↗</span></button><div class="model-status"><span>LOCAL MODEL</span><strong id="model-name">whoop-coach:0.1</strong><small><span class="live-dot"></span><span id="observation-count">0</span> observations saved</small></div></section></div></section>
-        <section id="account-panel" class="panel account-panel" hidden><div class="panel-title"><div><span class="eyebrow">ACCOUNT SECURITY</span><h3 id="account-title">Create local password</h3></div><span id="account-provider" class="panel-badge">LOCAL</span></div><p id="account-copy">A local password lets you open this desktop app without opening Google. It is separate from your Google password.</p><form id="account-password-form" class="account-password-form"><input id="account-current-password" type="password" placeholder="Current password" autocomplete="current-password" /><input id="account-new-password" type="password" placeholder="New password (8+ characters)" autocomplete="new-password" /><input id="account-confirm-password" type="password" placeholder="Confirm new password" autocomplete="new-password" /><button class="primary-button" type="submit">Set password <span>→</span></button><p id="account-password-message" class="form-message" role="status"></p></form></section>
+        <section id="more-view" class="view more-view">
+          <div class="section-intro">
+            <span class="eyebrow">MORE</span>
+            <h2>Your system,<br /><em>your control.</em></h2>
+            <p>
+              Manage your local connection, backups, and performance model from
+              one private workspace.
+            </p>
+          </div>
+          <div class="data-grid">
+            <section class="panel device-panel">
+              <div class="panel-title">
+                <div>
+                  <span class="eyebrow">BLUETOOTH LOW ENERGY</span>
+                  <h3>Connect WHOOP</h3>
+                </div>
+                <span id="scan-state" class="panel-badge">READ ONLY</span>
+              </div>
+              <div class="device-visual">⌁</div>
+              <p id="scan-result">No search has been run this session.</p>
+              <button id="scan" class="primary-button" type="button">
+                Find devices <span>⌁</span></button
+              ><small
+                >Read-only discovery. No write command is sent to your
+                band.</small
+              >
+            </section>
+            <section class="panel storage-panel">
+              <div class="panel-title">
+                <div>
+                  <span class="eyebrow">LOCAL STORAGE</span>
+                  <h3>System memory</h3>
+                </div>
+                <span class="panel-badge">PC FIRST</span>
+              </div>
+              <div class="storage-row">
+                <span>Physiological SQLite</span><strong>data/whoop.db</strong>
+              </div>
+              <div class="storage-row">
+                <span>Original data</span><strong>data/raw/</strong>
+              </div>
+              <div class="storage-row">
+                <span>Local model</span><strong>whoop-coach:0.1</strong>
+              </div>
+              <p class="panel-note">
+                RAW → validated → normalized → features → Coach.
+              </p>
+              <button
+                class="ghost-button full-button"
+                id="backup-hint"
+                type="button"
+              >
+                Backup instructions <span>→</span>
+              </button>
+            </section>
+          </div>
+          <div class="more-grid">
+            <section class="panel sync-panel">
+              <div class="panel-title">
+                <div>
+                  <span class="eyebrow">SYNC STATUS</span>
+                  <h3>Keep a local copy</h3>
+                </div>
+                <span id="sync-badge" class="panel-badge">LOCAL</span>
+              </div>
+              <div class="sync-status-line">
+                <span>WHOOP offload</span
+                ><strong id="sync-ble">not implemented</strong>
+              </div>
+              <div class="sync-status-line">
+                <span>Google auxiliary copy</span
+                ><strong id="sync-google">not configured</strong>
+              </div>
+              <div class="sync-status-line">
+                <span>Last copy</span><strong id="sync-last">none</strong>
+              </div>
+              <button id="sync-now" class="primary-button" type="button">
+                Sync auxiliary copy <span>↻</span></button
+              ><small id="sync-result"
+                >The PC remains the primary source.</small
+              >
+            </section>
+            <section class="panel online-panel">
+              <span class="eyebrow">WHOOP COACH WEB</span>
+              <h3>Open your online dashboard</h3>
+              <p>
+                Use the hosted dashboard for a broader view. Your local Coach
+                remains available here.
+              </p>
+              <button id="online" class="ghost-button" type="button">
+                Open online dashboard <span>↗</span>
+              </button>
+              <div class="model-status">
+                <span>LOCAL MODEL</span
+                ><strong id="model-name">whoop-coach:0.1</strong
+                ><small
+                  ><span class="live-dot"></span
+                  ><span id="observation-count">0</span> observations
+                  saved</small
+                >
+              </div>
+            </section>
+          </div>
+        </section>
       </main>
     </div>
     <script src="./app.js"></script>
