@@ -1387,6 +1387,138 @@ main {
     padding: 24px 18px;
   }
 }
+
+/* Product surface: functional account and data states, without campaign artwork. */
+.account-gate {
+  min-height: 100vh;
+  padding: 32px 20px 18px;
+  overflow: auto;
+  background: #f4f5f4;
+  color: #111918;
+}
+.account-gate .gate-layout {
+  width: min(470px, 100%);
+  min-height: 0;
+  display: block;
+  margin: 7vh auto 0;
+}
+.account-gate .account-card {
+  width: 100%;
+  padding: 34px;
+  border: 1px solid #d8ddda;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px #12251b12;
+}
+.account-brand {
+  margin-bottom: 26px;
+}
+.account-card h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+.auth-mode {
+  justify-content: flex-start;
+  margin: -5px 0 18px;
+}
+.account-card form {
+  gap: 14px;
+}
+.auth-field input {
+  height: 48px;
+  border-radius: 4px;
+}
+.password-field button {
+  height: 48px;
+}
+.account-card .auth-submit {
+  min-height: 44px;
+  border-radius: 4px;
+  background: #111918;
+  color: #fff;
+}
+.account-card .google-button {
+  border-radius: 4px;
+  background: #fff;
+}
+.demo-entry {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.demo-button {
+  width: 100%;
+}
+.account-gate .gate-visual-side {
+  display: none;
+}
+.account-gate .account-footer {
+  min-height: 28px;
+  background: transparent;
+}
+.dashboard-banner {
+  min-height: 0;
+  margin-top: 26px;
+  padding: 20px 22px;
+  border: 1px solid #b7d6d0;
+  border-radius: 7px;
+  background: #edf6f3;
+  box-shadow: none;
+}
+.dashboard-banner h2 {
+  margin: 8px 0 5px;
+  font-size: 22px;
+}
+.banner-orbit {
+  display: none;
+}
+.data-status-list {
+  display: grid;
+  gap: 8px;
+  min-width: 150px;
+  color: #52706a;
+  font-size: 10px;
+}
+.data-status-list span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.data-status-list i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9caeaa;
+}
+.score-card,
+.panel,
+.chat-card {
+  box-shadow: none;
+}
+.score-card:hover {
+  transform: none;
+}
+.section-intro h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  letter-spacing: -0.05em;
+}
+.data-note {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid #d9dfdc;
+  border-radius: 7px;
+  background: #fafcfb;
+}
+.data-note strong {
+  display: block;
+  color: #243630;
+  font-size: 12px;
+}
+.data-note p {
+  margin: 5px 0 0;
+  color: #687872;
+  font-size: 11px;
+  line-height: 1.5;
+}
 @media (max-width: 460px) {
   .app-main {
     padding-right: 12px;
@@ -1721,9 +1853,7 @@ main {
   justify-content: center;
   padding: clamp(35px, 7vw, 120px);
   overflow: hidden;
-  background:
-    linear-gradient(150deg, #202426cc, #10131455 55%, #111 100%),
-    url("/whoop-mg-platform/performance.jpg") center / cover;
+  background: #18201f;
 }
 .gate-visual-side::before {
   content: "";

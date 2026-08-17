@@ -9,25 +9,15 @@
   </head>
   <body>
     <section id="login-screen" class="login-screen" aria-labelledby="login-title">
-      <div class="login-visual" aria-hidden="true">
-        <div class="visual-shade"></div>
-        <div class="visual-copy">
-          <div class="whoop-wordmark"><span class="wordmark-mark">W</span> WHOOP</div>
-          <p class="visual-kicker">YOUR BODY. YOUR DATA. YOUR EDGE.</p>
-          <h1>Know your body.<br /><em>Own your day.</em></h1>
-          <div class="visual-stat"><span class="stat-line"></span><span>Performance insights<br />built around you.</span></div>
-        </div>
-        <span class="visual-credit">WHOOP PERFORMANCE SYSTEM</span>
-      </div>
       <div class="login-panel">
         <div class="login-header">
-          <div class="mini-brand"><span class="mini-mark">W</span><span>WHOOP</span></div>
-          <span class="local-pill"><i></i> LOCAL MODE</span>
+          <div class="mini-brand"><span class="mini-mark">W</span><span>WHOOP MG LAB</span></div>
+          <span class="local-pill"><i></i> DESKTOP</span>
         </div>
         <div class="login-content">
-          <span class="eyebrow">WELCOME BACK</span>
-          <h2 id="login-title">Sign in to your<br /><em>performance.</em></h2>
-          <p class="login-lede">Use Google for the same account as the web app, or create a local password for offline access.</p>
+          <span class="eyebrow">ACCOUNT ACCESS</span>
+          <h2 id="login-title">Sign in</h2>
+          <p class="login-lede">Use Google for the account shared with the web app, or use the local password configured for this computer.</p>
           <form id="local-login" class="login-form">
             <label for="login-email">Email</label>
             <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@email.com" required />
@@ -38,8 +28,8 @@
             <p id="login-error" class="form-message" role="alert"></p>
           </form>
           <button id="google-login" class="google-login-button" type="button"><span class="google-g">G</span> Continue with Google <span>↗</span></button>
-          <div class="login-divider"><span></span><small>PRIVATE BY DESIGN</small><span></span></div>
-          <p class="local-note"><span>⌁</span> Google sign-in opens your default browser and returns safely to this app. No Google password is handled here.</p>
+          <div class="login-divider"><span></span><small>SECURE SESSION</small><span></span></div>
+          <p class="local-note"><span>⌁</span> Google sign-in opens the system browser and returns to this app. The Google password is never handled here.</p>
         </div>
         <div class="login-footer"><span>© WHOOP COACH DESKTOP</span><span>v0.1 · LOCAL</span></div>
       </div>
@@ -74,8 +64,8 @@
         </header>
 
         <section id="dashboard-view" class="view active-view">
-          <div class="dashboard-heading"><div><span class="eyebrow">MONDAY, AUGUST 17</span><h1>Good morning, <em>athlete.</em></h1><p>Here's how your body is ready to perform today.</p></div><button class="date-button" type="button"><span>Today</span><b>⌄</b></button></div>
-          <div class="dashboard-banner"><div><span class="eyebrow lime-eyebrow">YOUR DAILY SNAPSHOT</span><h2 id="dashboard-title">Stay in the green.</h2><p id="dashboard-note">Sync your WHOOP to see your most recent recovery, strain, and sleep.</p></div><div class="banner-orbit"><span class="orbit-core">W</span><span class="orbit-label">BODY<br />STATUS</span></div></div>
+          <div class="dashboard-heading"><div><span id="today-date" class="eyebrow">TODAY</span><h1>Overview</h1><p>Latest values received by the local agent.</p></div><button class="date-button" type="button"><span>Today</span><b>⌄</b></button></div>
+          <div class="dashboard-banner"><div><span class="eyebrow lime-eyebrow">DATA STATUS</span><h2 id="dashboard-title">No current readings</h2><p id="dashboard-note">Connect a device or run a local sync to load recovery, strain, and sleep values.</p></div><div class="data-status-list"><span><i></i> Account</span><span><i></i> Local agent</span><span><i></i> Device data</span></div></div>
           <div class="section-heading"><div><span class="eyebrow">TODAY</span><h3>Performance overview</h3></div><span class="last-sync"><i class="pulse-dot"></i><span id="dashboard-updated">Waiting for sync</span></span></div>
           <div class="score-grid">
             <button class="score-card recovery-card" data-view="recovery"><span class="score-top"><span>RECOVERY</span><span class="score-symbol">◔</span></span><span class="score-value" id="dash-recovery">—</span><span class="score-caption" id="recovery-caption">No data yet</span><span class="score-progress"><i></i></span><span class="card-link">View recovery <b>→</b></span></button>

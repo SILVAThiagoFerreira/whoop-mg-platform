@@ -85,5 +85,8 @@ export async function readAccountSnapshot(
   token: string,
   user: GoogleUser,
 ): Promise<AccountSnapshot> {
+  // A local password authenticates the account record in this browser. It is
+  // not a WHOOP API credential and must never be sent to the remote adapter.
+  if (token.startsWith("local-token:")) return localSnapshot();
   return callBackend(token, user);
 }

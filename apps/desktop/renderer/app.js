@@ -12,6 +12,15 @@ const history = [];
 
 const pageNames = { dashboard: "OVERVIEW", recovery: "RECOVERY", strain: "STRAIN", sleep: "SLEEP", coach: "COACH", more: "MORE" };
 
+const todayDate = document.querySelector("#today-date");
+if (todayDate) {
+  todayDate.textContent = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(new Date()).toUpperCase();
+}
+
 function setText(selector, value) {
   const element = document.querySelector(selector);
   if (element) element.textContent = value;
@@ -149,8 +158,8 @@ async function loadDashboard() {
     setText("#sync-last", snapshot.last_sync?.ended_at || "none");
     setText("#dashboard-updated", snapshot.last_sync?.ended_at ? `Last sync ${snapshot.last_sync.ended_at}` : `${snapshot.observation_count || 0} local observations`);
     const hasScores = [recovery, strain, sleep].some((value) => value !== "—");
-    setText("#dashboard-title", hasScores ? "Your body is speaking." : "Stay in the green.");
-    setText("#dashboard-note", hasScores ? "Your latest local signals are ready to explore." : "Sync your WHOOP to see your most recent recovery, strain, and sleep.");
+    setText("#dashboard-title", hasScores ? "Data available" : "No current readings");
+    setText("#dashboard-note", hasScores ? "Latest values received by the local agent." : "Connect a device or run a local sync to load recovery, strain, and sleep values.");
   } catch {
     setText("#dashboard-updated", "Waiting for local sync");
   }

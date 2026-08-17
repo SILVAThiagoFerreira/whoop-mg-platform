@@ -298,7 +298,7 @@ function AccountGate({
           <span className="sr-only">Private by design</span>
           <div className="auth-mode" role="status">
             <span className="auth-mode-dot" aria-hidden="true" />
-            <span>LOCAL SIGN-IN READY</span>
+            <span>ACCOUNT ACCESS</span>
           </div>
           <form
             onSubmit={(event) => {
@@ -416,38 +416,13 @@ function AccountGate({
             </button>
           </div>
           <p className="account-disclaimer">
-            Private by design · no Drive or Sheets permission is requested.
+            Senha local e conta Google são métodos separados. Nenhuma senha
+            Google é recebida por este formulário.
           </p>
-        </section>
-        <section className="gate-visual-side" aria-label="Performance preview">
-          <div className="visual-puck">◒</div>
-          <div className="visual-copy">
-            <span>WHOOP MG LAB</span>
-            <strong>
-              Unlock your
-              <br />
-              <em>human performance.</em>
-            </strong>
-          </div>
-          <div className="visual-bands">
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="visual-caption">
-            <span>01 — RECOVERY</span>
-            <span>02 — SLEEP</span>
-            <span>03 — STRAIN</span>
-          </div>
         </section>
       </div>
       <p className="account-footer">
-        Unofficial WHOOP-compatible analytics · local engine powered
+        WHOOP MG Lab · acesso autenticado · dados locais ou serviço privado
       </p>
     </div>
   );
@@ -1031,7 +1006,11 @@ function Dashboard({
           <div className="topbar-actions">
             <div className="system-status">
               <span className="status-dot" />{" "}
-              {snapshot?.dataAvailable ? "LIVE" : "READY"}
+              {loading
+                ? "LOADING"
+                : snapshot?.dataAvailable
+                  ? "DATA AVAILABLE"
+                  : "NO DATA"}
             </div>
             <button
               className="topbar-sync"
@@ -1086,8 +1065,8 @@ function Dashboard({
                   </span>
                   <span className="status-copy">
                     {snapshot?.dataAvailable
-                      ? "Data is current"
-                      : "Waiting for your first sync"}
+                      ? `Source: ${storageLabel}`
+                      : "No readings for this account"}
                   </span>
                 </div>
               </section>
@@ -1098,7 +1077,7 @@ function Dashboard({
                   value={recovery}
                   tone="recovery"
                   focused={view === "Recovery"}
-                  title={recovery ? "Ready to perform" : "No score yet"}
+                  title={recovery ? "Score available" : "No score yet"}
                   description={
                     recovery
                       ? "Your body is primed for the day."
@@ -1117,17 +1096,17 @@ function Dashboard({
                   value={sleepPerformance}
                   tone="sleep"
                   focused={view === "Sleep"}
-                  title={sleepPerformance ? "Sleep complete" : "No sleep yet"}
+                  title={sleepPerformance ? "Score available" : "No sleep data"}
                   description={
                     sleepPerformance
-                      ? "A clear view of last night."
-                      : "Wear your device overnight."
+                      ? "Last value received from the data source."
+                      : "No sleep value has been received."
                   }
                   footer={[
                     "LAST NIGHT",
                     sleepDuration ? `${sleepDuration} h` : "—",
                     "STATUS",
-                    sleepPerformance ? "MEASURED" : "WAITING",
+                    sleepPerformance ? "RECEIVED" : "WAITING",
                   ]}
                 />
                 <ScoreCard
@@ -1136,17 +1115,17 @@ function Dashboard({
                   value={strain}
                   tone="strain"
                   focused={view === "Strain"}
-                  title={strain ? "Day in progress" : "No strain yet"}
+                  title={strain ? "Score available" : "No strain yet"}
                   description={
                     strain
-                      ? "Keep an eye on your daily load."
-                      : "Your activity will appear here."
+                      ? "Last value received from the data source."
+                      : "No strain value has been received."
                   }
                   footer={[
                     "HEART RATE",
                     `${metricMap.get("heart_rate")?.value ?? "—"} bpm`,
-                    "GOAL",
-                    "BUILDING",
+                    "SOURCE",
+                    strain ? "RECEIVED" : "WAITING",
                   ]}
                 />
               </section>
@@ -1162,7 +1141,7 @@ function Dashboard({
                   onClick={() => void refresh()}
                   disabled={loading || refreshing}
                 >
-                  {refreshing ? "SYNCING…" : "SYNC NOW"}
+                  {refreshing ? "UPDATING…" : "UPDATE VIEW"}
                 </button>
               </section>
               {error && (
@@ -1200,7 +1179,13 @@ function Dashboard({
                   ))}
                 </section>
               )}
-              <TrendCard hasData={Boolean(snapshot?.dataAvailable)} />
+              <section className="data-note">
+                <strong>Historical trends are unavailable</strong>
+                <p>
+                  This account currently exposes the latest snapshot only. No
+                  chart is shown until a real time-series source is connected.
+                </p>
+              </section>
               <div className="privacy-note">
                 <span>⌾</span>
                 <div>
@@ -1272,7 +1257,7 @@ export function App() {
         token={localUser ? `local-token:${localUser.sub}` : "demo-token"}
         onLogout={leaveLocalSession}
         onSetPassword={setPasswordForActiveAccount}
-        demoMode
+        demoMode={demoMode}
       />
     );
   if (auth.status !== "signed_in" || !auth.user || !auth.accessToken)
