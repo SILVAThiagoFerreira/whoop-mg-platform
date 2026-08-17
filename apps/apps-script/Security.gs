@@ -1,2 +1,2 @@
-function assertAuthorized_() { if (!Session.getActiveUser().getEmail()) throw new Error('AUTH_REQUIRED'); }
-
+// Security checks live next to the only HTTP entry point (Code.gs) so an
+// unguarded helper cannot accidentally become part of the public API.

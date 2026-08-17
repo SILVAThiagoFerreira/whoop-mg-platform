@@ -1,0 +1,7 @@
+{
+  "records": [
+    {"id": 1001, "updated_at": "2026-08-15T08:00:00Z", "score": {"recovery_score": 72, "resting_heart_rate": 55, "hrv_rmssd_milli": 61.0}},
+    {"id": 1002, "updated_at": "2026-08-16T08:00:00Z", "score": {"recovery_score": 78, "resting_heart_rate": 53, "hrv_rmssd_milli": 64.0}},
+    {"id": 1003, "updated_at": "2026-08-17T08:00:00Z", "score": {"recovery_score": 81, "resting_heart_rate": 52, "hrv_rmssd_milli": 66.0}}
+  ]
+}

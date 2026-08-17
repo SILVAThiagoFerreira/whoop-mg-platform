@@ -1,27 +1,32 @@
 # Google Drive e Sheets
 
-## Recursos validados por inspeção visual
+## Estado atual
 
-- Drive folder ID: `1PoGKDDcluoAZoqFjSRdEdl0kqEiBc_8L`.
-- Nome exibido: `WHOOP LAB`.
-- Arquivo encontrado: `Whoop_database`, tipo Google Planilhas, compartilhado.
-- Spreadsheet ID: `1-Tt053X7FMFPJeOgBM-kSYev7uz5u2_RMGHpmlMqwVg`.
-- Aba visível: `Página1`; nenhum dado/cabeçalho foi identificado na inspeção pública.
+O armazenamento Google legado não faz parte do fluxo do produto. IDs, links e
+nomes de arquivos não são documentados nem enviados ao navegador. Se os
+recursos antigos ainda existirem, devem ser revisados no Drive do proprietário
+e descompartilhados ou removidos manualmente.
 
-O acesso ocorreu pelo navegador gerenciado, sem login do perfil pessoal. Isso comprova apenas que os links são acessíveis e que o recurso existe; não comprova autorização de escrita autenticada.
+O Pages usa a Conta Google apenas como identidade. Não solicita escopos
+`drive.file`, `spreadsheets` ou `drive`, não pesquisa arquivos e não oferece
+link para pasta/planilha.
 
-## Plano não destrutivo
+## Adaptador privado opcional
 
-1. criar/usar uma aba `SYSTEM_TEST` somente após autenticação do proprietário;
-2. escrever um marcador reversível de teste;
-3. ler de volta e registrar timestamp/resultado;
-4. só então habilitar agregados em abas como `DAILY_METRICS`, `SLEEP`, `RECOVERY` e `SYNC_LOG`;
-5. nunca enviar raw de alta frequência para Sheets.
+Quando `VITE_WHOOP_API_URL` estiver configurado, o Apps Script executa como o
+proprietário, valida o token curto em `oauth2.googleapis.com/tokeninfo`, confere
+o client ID (`aud`) e usa somente o `sub` validado para selecionar o namespace.
+O endpoint aceita apenas `POST { action: "snapshot", accessToken }` e devolve
+agregados; nunca IDs, URLs, tokens, raw BLE ou operações de escrita.
 
-`apps/apps-script` mantém escrita desabilitada por padrão e usa Drive para listar arquivos/backups. Tokens não entram no frontend nem no Git.
+Sem essa variável, o app permanece em modo NOOP local e não toca em nenhum
+recurso Google.
 
-## Workspace por conta
+## Operação
 
-O PWA agora usa a Conta Google autenticada como identidade. Ele pesquisa arquivos privados criados pelo próprio app usando `appProperties.whoopAccountId = <Google sub>`. Cada conta recebe uma pasta e uma planilha próprias; o PWA não consulta o `Whoop_database` compartilhado legado automaticamente. Isso evita que uma planilha compartilhada se torne um banco multiusuário sem isolamento.
-
-O client ID OAuth é configuração pública do frontend. O access token é mantido somente em memória, expira rapidamente e precisa ser renovado por gesto do usuário. Refresh tokens não são armazenados no Pages.
+1. Configure `WHOOP_OAUTH_CLIENT_ID` e `WHOOP_ROOT_FOLDER_ID` em Script Properties.
+2. Publique o Apps Script como Web App executando como o proprietário.
+3. Faça um teste com uma conta autorizada e um snapshot vazio.
+4. Cadastre somente a URL do Web App como variável `WHOOP_API_URL` no GitHub Actions.
+5. Nunca adicione uma rota de listagem, download, compartilhamento ou escrita ao
+   endpoint público.

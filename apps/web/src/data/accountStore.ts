@@ -1,17 +1,15 @@
-import { googleClientId, type GoogleUser } from "../auth/google";
+import type { GoogleUser } from "../auth/google";
 
-const DRIVE_API = "https://www.googleapis.com/drive/v3";
-const SHEETS_API = "https://sheets.googleapis.com/v4";
-const SPREADSHEET_MIME = "application/vnd.google-apps.spreadsheet";
-const FOLDER_MIME = "application/vnd.google-apps.folder";
-const TABS = ["CONFIG", "DAILY_METRICS", "SYNC_LOG", "RAW_INDEX"] as const;
+/**
+ * The Pages client deliberately has no Drive or Sheets capability.
+ *
+ * Health data is either read from a trusted server-side adapter (the API URL
+ * is injected at build time) or remains local to NOOP. The browser never gets
+ * a file id, spreadsheet id, Drive URL, or a write primitive.
+ */
+const API_URL =
+  (import.meta.env.VITE_WHOOP_API_URL as string | undefined)?.trim() ?? "";
 
-export type AccountWorkspace = {
-  accountId: string;
-  folderId: string;
-  spreadsheetId: string;
-  spreadsheetUrl: string;
-};
 export type AccountMetric = {
   metric: string;
   value: string;
@@ -21,264 +19,71 @@ export type AccountMetric = {
   quality?: string;
   timestamp?: string;
 };
+
 export type AccountSnapshot = {
   metrics: AccountMetric[];
   lastSync: string | null;
   collectorStatus: "online" | "offline" | "unknown";
   dataAvailable: boolean;
-};
-type DriveList = {
-  files?: Array<{
-    id: string;
-    name: string;
-    appProperties?: Record<string, string>;
-  }>;
+  storage: "local" | "server";
+  message?: string;
 };
 
-async function api<T>(
-  token: string,
-  url: string,
-  init?: RequestInit,
-): Promise<T> {
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    const error = new Error(
-      response.status === 401
-        ? "AUTH_EXPIRED"
-        : `Google API ${response.status}: ${body.slice(0, 180)}`,
-    );
-    throw error;
-  }
-  return (await response.json()) as T;
+type BackendResponse = {
+  snapshot?: Omit<AccountSnapshot, "storage">;
+  error?: string;
+};
+
+export function isBackendConfigured(): boolean {
+  return Boolean(API_URL);
 }
 
-function queryUrl(query: string, fields: string): string {
-  return `${DRIVE_API}/files?q=${encodeURIComponent(query)}&spaces=drive&pageSize=20&fields=${encodeURIComponent(fields)}`;
-}
-
-async function accountKey(subject: string): Promise<string> {
-  const bytes = new TextEncoder().encode(
-    `whoop-mg:v1:${googleClientId()}:${subject}`,
-  );
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)]
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function findOrCreateFolder(
-  token: string,
-  accountId: string,
-): Promise<{ id: string; created: boolean }> {
-  const query = `mimeType='${FOLDER_MIME}' and trashed=false and appProperties has { key='whoopAccountId' and value='${accountId}' }`;
-  const found = await api<DriveList>(
-    token,
-    queryUrl(query, "files(id,name,appProperties)"),
-  );
-  if (found.files?.[0]) return { id: found.files[0].id, created: false };
-  const created = await api<{ id: string }>(
-    token,
-    `${DRIVE_API}/files?fields=id`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        name: "WHOOP MG Lab",
-        mimeType: FOLDER_MIME,
-        appProperties: { whoopAccountId: accountId, schemaVersion: "1" },
-      }),
-    },
-  );
-  return { id: created.id, created: true };
-}
-
-async function createSpreadsheet(
-  token: string,
-  accountId: string,
-  folderId: string,
-): Promise<string> {
-  const created = await api<{ spreadsheetId: string }>(
-    token,
-    `${SHEETS_API}/spreadsheets`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        properties: { title: "WHOOP MG Lab — Private Account" },
-      }),
-    },
-  );
-  await api(
-    token,
-    `${DRIVE_API}/files/${created.spreadsheetId}?addParents=${encodeURIComponent(folderId)}&fields=id`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        appProperties: { whoopAccountId: accountId, schemaVersion: "1" },
-      }),
-    },
-  );
-  return created.spreadsheetId;
-}
-
-async function initializeSpreadsheet(
-  token: string,
-  spreadsheetId: string,
-  accountId: string,
-): Promise<void> {
-  const metadata = await api<{
-    sheets?: Array<{ properties?: { title?: string } }>;
-  }>(
-    token,
-    `${SHEETS_API}/spreadsheets/${spreadsheetId}?fields=sheets.properties.title`,
-  );
-  const existing = new Set(
-    (metadata.sheets ?? [])
-      .map((sheet) => sheet.properties?.title)
-      .filter(Boolean),
-  );
-  const requests = TABS.filter((title) => !existing.has(title)).map(
-    (title) => ({ addSheet: { properties: { title } } }),
-  );
-  if (requests.length)
-    await api(
-      token,
-      `${SHEETS_API}/spreadsheets/${spreadsheetId}:batchUpdate`,
-      { method: "POST", body: JSON.stringify({ requests }) },
-    );
-  const values = {
-    valueInputOption: "RAW",
-    data: [
-      {
-        range: "CONFIG!A1:B3",
-        values: [
-          ["key", "value"],
-          ["account_id", accountId],
-          ["created_by", "WHOOP MG Lab"],
-        ],
-      },
-      {
-        range: "DAILY_METRICS!A1:H1",
-        values: [
-          [
-            "timestamp",
-            "metric",
-            "value",
-            "unit",
-            "source",
-            "source_type",
-            "quality",
-            "confidence",
-          ],
-        ],
-      },
-      {
-        range: "SYNC_LOG!A1:F1",
-        values: [
-          [
-            "timestamp",
-            "status",
-            "last_sample",
-            "collector",
-            "message",
-            "account_id",
-          ],
-        ],
-      },
-    ],
+function localSnapshot(): AccountSnapshot {
+  return {
+    metrics: [],
+    lastSync: null,
+    collectorStatus: "unknown",
+    dataAvailable: false,
+    storage: "local",
+    message:
+      "Conecte o NOOP neste dispositivo ou configure o serviço privado para sincronizar.",
   };
-  await api(
-    token,
-    `${SHEETS_API}/spreadsheets/${spreadsheetId}/values:batchUpdate`,
-    { method: "POST", body: JSON.stringify(values) },
-  );
 }
 
-export async function ensureAccountWorkspace(
+async function callBackend(
   token: string,
   user: GoogleUser,
-): Promise<AccountWorkspace> {
-  const accountId = await accountKey(user.sub);
-  const folder = await findOrCreateFolder(token, accountId);
-  const query = `mimeType='${SPREADSHEET_MIME}' and trashed=false and appProperties has { key='whoopAccountId' and value='${accountId}' }`;
-  const found = await api<DriveList>(
-    token,
-    queryUrl(query, "files(id,name,appProperties)"),
-  );
-  const spreadsheetCreated = !found.files?.[0];
-  const spreadsheetId =
-    found.files?.[0]?.id ??
-    (await createSpreadsheet(token, accountId, folder.id));
-  if (spreadsheetCreated)
-    await initializeSpreadsheet(token, spreadsheetId, accountId);
-  return {
-    accountId,
-    folderId: folder.id,
-    spreadsheetId,
-    spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
-  };
-}
+): Promise<AccountSnapshot> {
+  if (!API_URL) return localSnapshot();
 
-async function readRange(
-  token: string,
-  spreadsheetId: string,
-  range: string,
-): Promise<string[][]> {
-  const result = await api<{ values?: string[][] }>(
-    token,
-    `${SHEETS_API}/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE`,
-  );
-  return result.values ?? [];
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "snapshot",
+      accessToken: token,
+      // The server must ignore this value for authorization. It is only a
+      // diagnostic hint; the verified Google subject is the tenant key.
+      clientSubjectHint: user.sub,
+    }),
+  });
+  const body = (await response.json().catch(() => ({}))) as BackendResponse;
+  if (
+    response.status === 401 ||
+    body.error === "AUTH_INVALID" ||
+    body.error === "AUTH_REQUIRED"
+  )
+    throw new Error("AUTH_EXPIRED");
+  if (!response.ok || !body.snapshot)
+    throw new Error(
+      body.error ?? "Não foi possível carregar os dados privados.",
+    );
+  return { ...body.snapshot, storage: "server" };
 }
 
 export async function readAccountSnapshot(
   token: string,
-  workspace: AccountWorkspace,
+  user: GoogleUser,
 ): Promise<AccountSnapshot> {
-  const [metricRows, syncRows] = await Promise.all([
-    readRange(token, workspace.spreadsheetId, "DAILY_METRICS!A1:H200"),
-    readRange(token, workspace.spreadsheetId, "SYNC_LOG!A1:F100"),
-  ]);
-  const headers = (metricRows[0] ?? []).map((header) =>
-    String(header).toLowerCase(),
-  );
-  const index = (name: string) => headers.indexOf(name);
-  const latest = new Map<string, AccountMetric>();
-  for (const row of metricRows.slice(1)) {
-    const metric = String(row[index("metric")] ?? "");
-    if (!metric) continue;
-    const timestamp = String(row[index("timestamp")] ?? "");
-    const previous = latest.get(metric);
-    if (!previous || timestamp >= (previous.timestamp ?? ""))
-      latest.set(metric, {
-        metric,
-        value: String(row[index("value")] ?? "—"),
-        unit: String(row[index("unit")] ?? "") || undefined,
-        source: String(row[index("source")] ?? "") || undefined,
-        sourceType: String(row[index("source_type")] ?? "") || undefined,
-        quality: String(row[index("quality")] ?? "") || undefined,
-        timestamp,
-      });
-  }
-  const syncHeader = (syncRows[0] ?? []).map((header) =>
-    String(header).toLowerCase(),
-  );
-  const syncIndex = (name: string) => syncHeader.indexOf(name);
-  const latestSync = syncRows.slice(1).at(-1);
-  const syncStatus = String(
-    latestSync?.[syncIndex("status")] ?? "",
-  ).toLowerCase();
-  return {
-    metrics: [...latest.values()],
-    lastSync: String(latestSync?.[syncIndex("timestamp")] ?? "") || null,
-    collectorStatus:
-      syncStatus === "complete" ? "online" : syncStatus ? "offline" : "unknown",
-    dataAvailable: latest.size > 0,
-  };
+  return callBackend(token, user);
 }

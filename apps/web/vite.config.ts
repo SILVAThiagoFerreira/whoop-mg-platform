@@ -13,8 +13,8 @@ export default defineConfig({
         name: "WHOOP MG Lab",
         short_name: "WHOOP MG Lab",
         description: "Personal Performance Intelligence",
-        theme_color: "#0a0d12",
-        background_color: "#0a0d12",
+        theme_color: "#121518",
+        background_color: "#121518",
         display: "standalone",
         start_url: "/whoop-mg-platform/",
         icons: [

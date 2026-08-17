@@ -1,5 +1,7 @@
 # Isolamento de dados por conta
 
+> **Atualização 2026-08-17:** o modelo anterior de criação e leitura direta pelo browser foi removido. O Pages agora solicita apenas identidade Google. Drive/Sheets são uma implementação server-side opcional; sem backend configurado, nenhum arquivo Google é criado ou consultado.
+
 **Status:** desenho account-first auditado — 2026-08-16  
 **Objetivo:** garantir que cada conta Google tenha um namespace e um destino Drive/Sheets próprio, sem transformar GitHub Pages em banco ou backend multi-tenant.
 

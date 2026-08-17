@@ -26,3 +26,28 @@ Cada amostra possui `source`, `source_type`, `quality`, `confidence`, `is_derive
 ## Custo
 
 O caminho básico pode operar com R$ 0/mês: software local, GitHub Pages/Actions, Drive/Sheets e Apps Script dentro das cotas gratuitas. Apple Developer Program não é necessário para “Adicionar à Tela de Início”; publicação nativa na App Store seria outra decisão.
+
+## Personal Physiology Operating System
+
+O WHOOP MG Lab evolui para um sistema local-first cujo cérebro é o Alienware. O PWA é uma interface; Google é sincronização auxiliar; o banco local é a fonte principal.
+
+```text
+WHOOP BLE / WHOOP API / arquivo / entrada manual
+                    ↓
+             Local Agent
+        scan · ingest · validate · raw
+                    ↓
+       SQLite observations + quality
+                    ↓
+       Analytics / Body Model / ML
+                    ↓
+        Memory + Jarvis Core + LLM
+                    ↓
+       API privada → PWA no iPhone
+                    ↓
+       Google backup/export opcional
+```
+
+Contratos: `raw_documents` preserva payloads; `observations` é a projeção canônica; `quality_issues` registra problemas; `sync_cursors` é separado por fonte; baselines carregam janela e algoritmo. Nenhum LLM substitui estatística ou evidência do banco.
+
+O Pages não recebe tokens WHOOP, banco, segredos ou dados pessoais. O agente local é a única fronteira BLE/SQLite. Google só recebe exportações aprovadas depois do commit local.

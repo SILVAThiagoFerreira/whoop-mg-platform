@@ -1,5 +1,11 @@
 # Armazenamento na conta Google a partir de frontend estático
 
+## Estado atual
+
+O frontend não usa mais o token model para Drive/Sheets. O token de identidade fica somente em memória e serve para autenticação. A única ponte opcional é `VITE_WHOOP_API_URL`, que aponta para o adaptador Apps Script executando como proprietário. Se essa variável não existir, o app permanece em modo NOOP local.
+
+Isso é obrigatório para o requisito de não permitir que usuários abram ou manipulem diretamente a pasta/planilha. Uma SPA não consegue esconder de seu próprio usuário um access token que tenha permissão de Drive.
+
 ## Escopo e decisão arquitetural
 
 Este documento descreve um caminho para o dashboard estático pedir autorização no navegador e gravar dados derivados na conta Google do próprio usuário, sem backend OAuth. O fluxo recomendado para esse caso é o **Google Identity Services (GIS) token model**:
@@ -98,4 +104,3 @@ Fontes: [Use the token model](https://developers.google.com/identity/oauth2/web/
 - Manter access token somente em memória sempre que possível; limpar ao sair/desconectar e oferecer revogação via `google.accounts.oauth2.revoke(token, callback)`.
 - Ao receber `401`, obter novo token via gesto do usuário. Não tentar fabricar refresh token no frontend.
 - Em caso de revogação, consentimento parcial ou perda de acesso ao arquivo, marcar a sincronização como `BLOCKED` e preservar a fila local para uma ação posterior; não alegar sincronização concluída.
-

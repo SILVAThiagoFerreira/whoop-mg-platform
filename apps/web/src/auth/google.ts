@@ -38,9 +38,10 @@ declare global {
   }
 }
 
-export const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+// Identity only. Drive/Sheets scopes in a public SPA let a user replay the
+// token from DevTools, which is explicitly not part of this product boundary.
 export const IDENTITY_SCOPES = "openid profile email";
-export const GOOGLE_SCOPES = `${IDENTITY_SCOPES} ${DRIVE_SCOPE}`;
+export const GOOGLE_SCOPES = IDENTITY_SCOPES;
 
 export function googleClientId(): string {
   return (

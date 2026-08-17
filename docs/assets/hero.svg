@@ -1,0 +1,62 @@
+<svg width="1600" height="760" viewBox="0 0 1600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="160" y1="80" x2="1450" y2="730" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080B12"/>
+      <stop offset="0.52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#1B1029"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="370" y1="220" x2="1340" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B7BFF"/>
+      <stop offset="0.52" stop-color="#52D8FF"/>
+      <stop offset="1" stop-color="#C6FF4A"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="1080" y1="230" x2="1340" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C6FF4A"/>
+      <stop offset="1" stop-color="#52D8FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity="0.38"/></filter>
+    <filter id="blur"><feGaussianBlur stdDeviation="48"/></filter>
+  </defs>
+  <rect width="1600" height="760" rx="32" fill="url(#bg)"/>
+  <circle cx="1230" cy="360" r="260" fill="#7B61FF" fill-opacity="0.13" filter="url(#blur)"/>
+  <circle cx="1420" cy="90" r="190" fill="#4DD9FF" fill-opacity="0.08" filter="url(#blur)"/>
+  <path d="M0 600C238 500 344 594 529 520C733 438 788 538 965 462C1197 362 1311 468 1600 288" stroke="url(#glow)" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 20" opacity="0.42"/>
+  <path d="M0 622C224 528 376 638 566 548C786 444 845 561 1023 476C1214 384 1322 478 1600 306" stroke="url(#glow)" stroke-width="2" opacity="0.2"/>
+  <g opacity="0.18" stroke="#E7ECF5">
+    <path d="M70 90H1530"/><path d="M70 190H1530"/><path d="M70 290H1530"/><path d="M70 390H1530"/><path d="M70 490H1530"/><path d="M70 590H1530"/><path d="M70 690H1530"/>
+    <path d="M90 64V710"/><path d="M290 64V710"/><path d="M490 64V710"/><path d="M690 64V710"/><path d="M890 64V710"/><path d="M1090 64V710"/><path d="M1290 64V710"/><path d="M1490 64V710"/>
+  </g>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <text x="92" y="108" fill="#C6FF4A" font-size="20" font-weight="700" letter-spacing="4">PERSONAL BODY INTELLIGENCE</text>
+    <text x="88" y="206" fill="#F8FAFC" font-size="78" font-weight="800" letter-spacing="-3">WHOOP MG</text>
+    <text x="88" y="292" fill="#F8FAFC" font-size="78" font-weight="800" letter-spacing="-3">LAB</text>
+    <text x="94" y="350" fill="#B9C3D4" font-size="25">Seu corpo. Seu histórico. Seu modelo.</text>
+    <text x="94" y="390" fill="#8290A8" font-size="18">A local-first physiology intelligence system for one human.</text>
+    <rect x="92" y="446" width="210" height="52" rx="26" fill="#C6FF4A"/>
+    <text x="126" y="479" fill="#0B1017" font-size="17" font-weight="800">LOCAL-FIRST</text>
+    <rect x="316" y="446" width="180" height="52" rx="26" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.16"/>
+    <text x="350" y="479" fill="#E7ECF5" font-size="17" font-weight="700">OPEN BUILD</text>
+    <text x="96" y="676" fill="#718096" font-size="15" letter-spacing="2">WHOOP → ALIENWARE → BODY MODEL → JARVIS</text>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="1240" cy="348" r="178" fill="#101925" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
+    <circle cx="1240" cy="348" r="150" stroke="#2E3B4F" stroke-width="18"/>
+    <circle cx="1240" cy="348" r="150" stroke="url(#ring)" stroke-width="18" stroke-linecap="round" stroke-dasharray="644 300" transform="rotate(-90 1240 348)"/>
+    <circle cx="1240" cy="348" r="120" fill="#0B111A" stroke="#28364A" stroke-width="1"/>
+    <text x="1240" y="335" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="54" font-weight="800" text-anchor="middle">87</text>
+    <text x="1240" y="370" fill="#A8B5C8" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="3" text-anchor="middle">READINESS</text>
+    <circle cx="1240" cy="458" r="7" fill="#C6FF4A"/>
+    <text x="1260" y="464" fill="#C6FF4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">MODEL ONLINE</text>
+  </g>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14">
+    <rect x="997" y="102" width="160" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.12"/>
+    <text x="1021" y="130" fill="#B7C4D8">BLE SENSOR</text>
+    <path d="M1157 124L1190 174" stroke="#52D8FF" stroke-width="2" stroke-dasharray="5 5"/>
+    <rect x="1308" y="116" width="188" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.12"/>
+    <text x="1333" y="144" fill="#B7C4D8">LOCAL DATABASE</text>
+    <path d="M1378 160L1330 207" stroke="#9B7BFF" stroke-width="2" stroke-dasharray="5 5"/>
+    <rect x="1360" y="538" width="156" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.12"/>
+    <text x="1385" y="566" fill="#B7C4D8">JARVIS CORE</text>
+    <path d="M1360 557L1332 492" stroke="#C6FF4A" stroke-width="2" stroke-dasharray="5 5"/>
+  </g>
+</svg>

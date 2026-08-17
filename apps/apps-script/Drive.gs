@@ -1,2 +1,2 @@
-function listProjectFiles() { const folder = DriveApp.getFolderById(WHOOP_CONFIG.driveFolderId); const files = folder.getFiles(); const result = []; while (files.hasNext()) { const f = files.next(); result.push({ id: f.getId(), name: f.getName(), mimeType: f.getMimeType(), updated: f.getLastUpdated().toISOString() }); } return result; }
-
+// Drive access is intentionally private to Code.gs and the Apps Script owner.
+// Do not add a browser-callable Drive listing endpoint here.

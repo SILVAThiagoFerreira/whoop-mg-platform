@@ -1,0 +1,11 @@
+[project]
+name = "whoop-local-agent"
+version = "0.1.0"
+description = "Local-first WHOOP personal physiology agent"
+requires-python = ">=3.11"
+
+[project.scripts]
+whoop-local = "whoop_local.cli:main"
+
+[tool.ruff]
+line-length = 140

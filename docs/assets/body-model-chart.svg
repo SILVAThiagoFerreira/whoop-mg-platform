@@ -1,0 +1,16 @@
+<svg width="1500" height="680" viewBox="0 0 1500 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1500" y2="680" gradientUnits="userSpaceOnUse"><stop stop-color="#FCFBF7"/><stop offset="1" stop-color="#EEF4F0"/></linearGradient>
+    <linearGradient id="area" x1="720" y1="190" x2="720" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#76C878" stop-opacity="0.34"/><stop offset="1" stop-color="#76C878" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1500" height="680" rx="28" fill="url(#bg)"/>
+  <text x="76" y="78" fill="#1B2A24" font-family="Georgia, serif" font-size="38" font-weight="700">Personal normal is a moving target.</text>
+  <text x="78" y="116" fill="#6A786F" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Illustrative chart — the model learns the shape of one body over time.</text>
+  <g stroke="#D7E1D9" stroke-width="1"><path d="M120 180H1410"/><path d="M120 280H1410"/><path d="M120 380H1410"/><path d="M120 480H1410"/><path d="M120 580H1410"/></g>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" fill="#85938A"><text x="72" y="185">+2σ</text><text x="76" y="285">+1σ</text><text x="80" y="385">BASELINE</text><text x="76" y="485">−1σ</text><text x="76" y="585">−2σ</text><text x="126" y="620">JAN</text><text x="390" y="620">FEB</text><text x="650" y="620">MAR</text><text x="910" y="620">APR</text><text x="1170" y="620">MAY</text><text x="1370" y="620">NOW</text></g>
+  <path d="M120 378C190 330 236 402 304 364C371 326 406 390 470 352C539 310 585 376 650 340C720 302 765 370 830 336C891 304 944 366 1007 344C1070 322 1112 370 1178 334C1239 300 1286 364 1340 292C1370 252 1390 240 1410 224V580H120V378Z" fill="url(#area)"/>
+  <path d="M120 378C190 330 236 402 304 364C371 326 406 390 470 352C539 310 585 376 650 340C720 302 765 370 830 336C891 304 944 366 1007 344C1070 322 1112 370 1178 334C1239 300 1286 364 1340 292C1370 252 1390 240 1410 224" stroke="#45A95B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M120 384C300 360 460 372 650 360C840 348 1010 364 1180 350C1280 342 1345 330 1410 320" stroke="#C3A86B" stroke-width="3" stroke-dasharray="8 10"/>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif"><rect x="1020" y="154" width="324" height="122" rx="18" fill="#FFFFFF" stroke="#D7E1D9"/><circle cx="1052" cy="188" r="7" fill="#45A95B"/><text x="1072" y="194" fill="#34453A" font-size="15" font-weight="700">observed signal</text><circle cx="1052" cy="222" r="7" fill="#C3A86B"/><text x="1072" y="228" fill="#34453A" font-size="15" font-weight="700">personal baseline</text><text x="1052" y="256" fill="#829087" font-size="13">No population average required.</text></g>
+  <g><rect x="120" y="154" width="290" height="122" rx="18" fill="#1B2A24"/><text x="148" y="192" fill="#C6FF4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" letter-spacing="2">BODY MODEL</text><text x="148" y="228" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="23" font-weight="800">Normal ≠ average</text><text x="148" y="254" fill="#A7B9AE" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13">7d · 28d · 90d · lifetime</text></g>
+</svg>
