@@ -6,8 +6,14 @@ import {
   type AccountMetric,
   type AccountSnapshot,
 } from "./data/accountStore";
+import {
+  askWhoopCoach,
+  isCoachConfigured,
+  type CoachMessage,
+} from "./data/coachStore";
 
-type View = "Today" | "Recovery" | "Strain" | "Sleep" | "More";
+type View = "Today" | "Recovery" | "Strain" | "Sleep" | "Coach" | "More";
+type ScoreTone = "recovery" | "sleep" | "strain";
 type MetricDefinition = {
   label: string;
   key: string;
@@ -15,6 +21,15 @@ type MetricDefinition = {
   tone: "recovery" | "sleep" | "strain" | "neutral";
   emptyNote?: string;
 };
+
+const navigation: View[] = [
+  "Today",
+  "Recovery",
+  "Strain",
+  "Sleep",
+  "Coach",
+  "More",
+];
 
 const definitions: MetricDefinition[] = [
   { label: "Heart rate variability", key: "hrv", unit: "ms", tone: "recovery" },
@@ -47,9 +62,124 @@ const definitions: MetricDefinition[] = [
     key: "battery",
     unit: "%",
     tone: "neutral",
-    emptyNote: "NOOP not connected",
+    emptyNote: "Local engine not connected",
   },
 ];
+
+const demoUser = {
+  sub: "demo-athlete",
+  name: "Demo Athlete",
+  email: "athlete@whoop-mg.local",
+  picture: "",
+};
+
+const demoSnapshot: AccountSnapshot = {
+  metrics: [
+    {
+      metric: "recovery",
+      value: "78",
+      unit: "%",
+      sourceType: "DERIVED",
+      source: "demo baseline",
+    },
+    {
+      metric: "hrv",
+      value: "62",
+      unit: "ms",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "rhr",
+      value: "51",
+      unit: "bpm",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "sleep_performance",
+      value: "86",
+      unit: "%",
+      sourceType: "DERIVED",
+      source: "demo baseline",
+    },
+    {
+      metric: "sleep_duration",
+      value: "8.1",
+      unit: "h",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "strain",
+      value: "11.7",
+      unit: "score",
+      sourceType: "DERIVED",
+      source: "demo baseline",
+    },
+    {
+      metric: "heart_rate",
+      value: "142",
+      unit: "bpm",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "respiratory_rate",
+      value: "15.8",
+      unit: "rpm",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "spo2",
+      value: "97.2",
+      unit: "%",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+    {
+      metric: "battery",
+      value: "84",
+      unit: "%",
+      sourceType: "MEASURED",
+      source: "demo sensor",
+    },
+  ],
+  lastSync: new Date().toISOString(),
+  collectorStatus: "online",
+  dataAvailable: true,
+  storage: "local",
+  message:
+    "Demo data loaded locally. Connect a real source before using it for training decisions.",
+};
+
+const pageCopy: Record<
+  Exclude<View, "Coach" | "More">,
+  { eyebrow: string; title: string; description: string }
+> = {
+  Today: {
+    eyebrow: "YOUR DAY",
+    title: "Today at a glance",
+    description: "A calm read on how your body is doing right now.",
+  },
+  Recovery: {
+    eyebrow: "RECOVERY",
+    title: "Know when to push",
+    description:
+      "Your readiness is built from the signals your body gives you.",
+  },
+  Strain: {
+    eyebrow: "STRAIN",
+    title: "Understand your load",
+    description: "See how much work your body has taken on today.",
+  },
+  Sleep: {
+    eyebrow: "SLEEP",
+    title: "Build better nights",
+    description: "Sleep is the foundation for everything you do tomorrow.",
+  },
+};
 
 function ScoreRing({
   value,
@@ -57,18 +187,28 @@ function ScoreRing({
   label,
 }: {
   value?: string;
-  tone: "recovery" | "sleep" | "strain";
+  tone: ScoreTone;
   label: string;
 }) {
   const numeric = value ? Number.parseFloat(value) : Number.NaN;
+  const max = tone === "strain" ? 21 : 100;
   const progress = Number.isFinite(numeric)
-    ? Math.min(1, Math.max(0, numeric / (tone === "strain" ? 21 : 100)))
+    ? Math.min(1, Math.max(0, numeric / max))
     : 0;
   const radius = 51;
   const circumference = 2 * Math.PI * radius;
+  const recoveryBand =
+    tone === "recovery"
+      ? !Number.isFinite(numeric) || numeric >= 67
+        ? "high"
+        : numeric >= 34
+          ? "medium"
+          : "low"
+      : "";
+
   return (
     <div
-      className={`score-ring ${tone}`}
+      className={`score-ring ${tone} ${recoveryBand}`}
       aria-label={`${label}: ${value ?? "No data"}`}
     >
       <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -90,76 +230,139 @@ function ScoreRing({
   );
 }
 
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <div
+      className={`brand-mark ${compact ? "compact" : ""}`}
+      aria-label="WHOOP MG Lab"
+    >
+      <span className="brand-puck" aria-hidden="true" />
+      <span className="whoop-wordmark">
+        WHOOP <small>MG</small>
+      </span>
+    </div>
+  );
+}
+
+function NavIcon({ item }: { item: View }) {
+  return (
+    <span className={`nav-icon nav-${item.toLowerCase()}`} aria-hidden="true" />
+  );
+}
+
 function AccountGate({
   configured,
   status,
   error,
   onSignIn,
+  onDemo,
 }: {
   configured: boolean;
   status: string;
   error: string | null;
   onSignIn: () => void;
+  onDemo: () => void;
 }) {
   return (
     <div className="account-gate">
-      <div className="whoop-wordmark">
-        WHOOP <span>MG</span>
+      <div className="gate-layout">
+        <section className="account-card">
+          <div className="account-brand">
+            <BrandMark compact />
+          </div>
+          <h2>Sign In</h2>
+          <span className="sr-only">Train smarter.</span>
+          <span className="sr-only">Private by design</span>
+          <p className="account-lead">
+            Use your performance account to continue.
+          </p>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (configured) onSignIn();
+            }}
+          >
+            <label className="auth-field">
+              <span>Email address</span>
+              <input
+                type="email"
+                placeholder="Email address"
+                autoComplete="email"
+              />
+            </label>
+            <label className="auth-field password-field">
+              <span>Password</span>
+              <input
+                type="password"
+                placeholder="Password"
+                autoComplete="current-password"
+              />
+              <button type="button" aria-label="Show password">
+                ◉
+              </button>
+            </label>
+            <a className="forgot-link" href="#forgot-password">
+              Forgot Password?
+            </a>
+            {error && (
+              <div className="error-message" role="alert">
+                {error}
+              </div>
+            )}
+            <button
+              className="google-button"
+              type="submit"
+              disabled={!configured || status === "loading"}
+            >
+              {status === "loading" ? "OPENING…" : "SIGN IN"}
+            </button>
+          </form>
+          {!configured && (
+            <div className="setup-warning">
+              <strong>Login ainda não configurado</strong>
+              <p>
+                Configure <code>VITE_GOOGLE_CLIENT_ID</code> no build do Pages.
+              </p>
+            </div>
+          )}
+          {!configured && (
+            <button className="demo-button" onClick={onDemo}>
+              EXPLORE DEMO DATA
+            </button>
+          )}
+          <p className="account-disclaimer">
+            Private by design · no Drive or Sheets permission is requested.
+          </p>
+        </section>
+        <section className="gate-visual-side" aria-label="Performance preview">
+          <div className="visual-puck">◒</div>
+          <div className="visual-copy">
+            <span>WHOOP MG LAB</span>
+            <strong>
+              Unlock your
+              <br />
+              <em>human performance.</em>
+            </strong>
+          </div>
+          <div className="visual-bands">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="visual-caption">
+            <span>01 — RECOVERY</span>
+            <span>02 — SLEEP</span>
+            <span>03 — STRAIN</span>
+          </div>
+        </section>
       </div>
-      <section className="account-card">
-        <div className="gate-visual" aria-hidden="true">
-          <div className="gate-orbit orbit-one" />
-          <div className="gate-orbit orbit-two" />
-          <div className="gate-core">◉</div>
-        </div>
-        <div className="eyebrow">PERSONAL PERFORMANCE</div>
-        <h1>
-          Train smarter.
-          <br />
-          <em>Recover better.</em>
-        </h1>
-        <p className="account-lead">
-          Sign in to see your recovery, sleep and strain in one calm, focused
-          view.
-        </p>
-        <div className="account-security">
-          <span className="security-icon">⌾</span>
-          <div>
-            <strong>Private by design</strong>
-            <p>
-              Google is used only to identify your account. Health data stays
-              inside NOOP or the private service — never in your browser links.
-            </p>
-          </div>
-        </div>
-        {!configured && (
-          <div className="setup-warning">
-            <strong>Login ainda não configurado</strong>
-            <p>
-              Configure <code>VITE_GOOGLE_CLIENT_ID</code> no build do Pages.
-            </p>
-          </div>
-        )}
-        {error && (
-          <div className="error-message" role="alert">
-            {error}
-          </div>
-        )}
-        <button
-          className="google-button"
-          onClick={onSignIn}
-          disabled={!configured || status === "loading"}
-        >
-          <span className="google-g">G</span>
-          {status === "loading" ? "Opening Google…" : "Continue with Google"}
-          <span aria-hidden="true">→</span>
-        </button>
-        <p className="account-disclaimer">
-          No Drive or Sheets permission is requested by this app.
-        </p>
-      </section>
       <p className="account-footer">
-        Unofficial WHOOP-compatible analytics · NOOP powered
+        Unofficial WHOOP-compatible analytics · local engine powered
       </p>
     </div>
   );
@@ -191,7 +394,55 @@ function MetricCard({
   );
 }
 
-function Dashboard({
+function ScoreCard({
+  label,
+  value,
+  tone,
+  title,
+  description,
+  footer,
+  focused,
+  onOpen,
+}: {
+  label: string;
+  value?: string;
+  tone: ScoreTone;
+  title: string;
+  description: string;
+  footer: [string, string, string, string];
+  focused?: boolean;
+  onOpen?: () => void;
+}) {
+  return (
+    <article className={`score-card ${tone}-card ${focused ? "focused" : ""}`}>
+      <div className="score-card-header">
+        <span>{label}</span>
+        <button
+          className="quiet-icon"
+          onClick={onOpen}
+          aria-label={`Open ${label} details`}
+        >
+          ↗
+        </button>
+      </div>
+      <div className="score-body">
+        <ScoreRing value={value} tone={tone} label={label} />
+        <div className="score-copy">
+          <strong className="score-title">{title}</strong>
+          <p>{description}</p>
+        </div>
+      </div>
+      <div className="score-card-footer">
+        <span>{footer[0]}</span>
+        <b>{footer[1]}</b>
+        <span>{footer[2]}</span>
+        <b>{footer[3]}</b>
+      </div>
+    </article>
+  );
+}
+
+function CoachPanel({
   user,
   token,
   onLogout,
@@ -199,6 +450,301 @@ function Dashboard({
   user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
   token: string;
   onLogout: () => void;
+}) {
+  const [messages, setMessages] = useState<CoachMessage[]>([
+    {
+      role: "assistant",
+      content:
+        "Olá. Eu sou o Whoop Coach. Quando seus dados estiverem conectados, poderei interpretar seu histórico pessoal com evidências.",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const configured = isCoachConfigured();
+
+  const send = async () => {
+    const content = input.trim();
+    if (!content || sending) return;
+    setInput("");
+    setError(null);
+    const next = [...messages, { role: "user" as const, content }];
+    setMessages(next);
+    setSending(true);
+    try {
+      const result = await askWhoopCoach(token, user, content, messages);
+      setMessages([...next, { role: "assistant", content: result.reply }]);
+    } catch (reason) {
+      const code = reason instanceof Error ? reason.message : "UNKNOWN";
+      if (code === "AUTH_EXPIRED") onLogout();
+      else
+        setError(
+          code === "COACH_API_NOT_CONFIGURED"
+            ? "O Whoop Coach ainda não está conectado a este Pages."
+            : "Não foi possível falar com o Whoop Coach.",
+        );
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <section className="coach-panel" aria-label="Whoop Coach">
+      <div className="coach-panel-header">
+        <div>
+          <div className="card-kicker">PRIVATE LOCAL ASSISTANT</div>
+          <h2>Whoop Coach</h2>
+          <p>
+            Uma leitura contextual do seu histórico, sem transformar uma métrica
+            em diagnóstico.
+          </p>
+        </div>
+        <span className={`coach-status ${configured ? "online" : "offline"}`}>
+          <i /> {configured ? "BRIDGE READY" : "NOT CONNECTED"}
+        </span>
+      </div>
+      <div className="coach-prompts">
+        <span>Try asking</span>
+        <button
+          onClick={() =>
+            setInput("Como devo equilibrar recuperação e treino hoje?")
+          }
+        >
+          Recovery vs. training
+        </button>
+        <button
+          onClick={() => setInput("O que mudou no meu sono esta semana?")}
+        >
+          Sleep this week
+        </button>
+      </div>
+      <div className="coach-messages">
+        {messages.map((message, index) => (
+          <div
+            className={`coach-message ${message.role}`}
+            key={`${message.role}-${index}`}
+          >
+            <span>{message.role === "assistant" ? "WHOOP COACH" : "VOCÊ"}</span>
+            <p>{message.content}</p>
+          </div>
+        ))}
+        {sending && (
+          <div className="coach-typing">
+            Whoop Coach está analisando localmente…
+          </div>
+        )}
+      </div>
+      {error && (
+        <div className="error-message" role="alert">
+          {error}
+        </div>
+      )}
+      <div className="coach-composer">
+        <textarea
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              void send();
+            }
+          }}
+          placeholder={
+            configured
+              ? "Pergunte como seu corpo está…"
+              : "Configure a ponte local para conversar…"
+          }
+          disabled={!configured || sending}
+          rows={2}
+        />
+        <button
+          onClick={() => void send()}
+          disabled={!configured || sending || !input.trim()}
+        >
+          {sending ? "…" : "Enviar"}
+        </button>
+      </div>
+      <small className="coach-footnote">
+        O modelo não recebe acesso direto ao Google Drive nem ao sistema
+        operacional.
+      </small>
+    </section>
+  );
+}
+
+function TrendCard({ hasData }: { hasData: boolean }) {
+  return (
+    <section className="trend-card">
+      <div className="section-heading">
+        <div>
+          <div className="card-kicker">TRENDS</div>
+          <h2>Understand your patterns</h2>
+        </div>
+        <span>30 DAYS</span>
+      </div>
+      <div className="trend-visual" aria-hidden="true">
+        {[22, 38, 31, 50, 45, 67, 56, 78, 70, 82, 68, 88].map(
+          (height, index) => (
+            <i key={index} style={{ height: `${hasData ? height : 10}%` }} />
+          ),
+        )}
+      </div>
+      <div className="trend-empty">
+        <strong>
+          {hasData ? "Trend engine ready" : "Your trends start here"}
+        </strong>
+        <p>
+          {hasData
+            ? "More history will make your patterns clearer."
+            : "The local engine will build a personal baseline as you wear your device."}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function MoreView({
+  user,
+  onLogout,
+}: {
+  user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
+  onLogout: () => void;
+}) {
+  return (
+    <section className="more-view">
+      <div className="page-heading">
+        <div className="card-kicker">SETTINGS</div>
+        <h1>More</h1>
+        <p>
+          Make the platform work around your training, your data and your
+          privacy.
+        </p>
+      </div>
+      <div className="settings-grid">
+        <article className="settings-card profile-card">
+          <span className="settings-icon">◎</span>
+          <div>
+            <div className="card-kicker">ACCOUNT</div>
+            <h2>{user.name ?? user.email}</h2>
+            <p>
+              Signed in with Google identity. Health data remains scoped to this
+              account.
+            </p>
+          </div>
+        </article>
+        <article className="settings-card">
+          <span className="settings-icon">⌁</span>
+          <div>
+            <div className="card-kicker">DEVICE</div>
+            <h2>WHOOP MG</h2>
+            <p>
+              Local collector status is shown on the dashboard before any sync
+              is considered valid.
+            </p>
+            <span className="setting-status">
+              <i />{" "}
+              {isBackendConfigured()
+                ? "Private service connected"
+                : "Local engine not connected"}
+            </span>
+          </div>
+        </article>
+        <article className="settings-card">
+          <span className="settings-icon">⌾</span>
+          <div>
+            <div className="card-kicker">PRIVACY</div>
+            <h2>Data stays private</h2>
+            <p>
+              Drive and Sheets are not exposed to this interface. Measured,
+              derived and estimated values remain distinct.
+            </p>
+          </div>
+        </article>
+        <article className="settings-card">
+          <span className="settings-icon">?</span>
+          <div>
+            <div className="card-kicker">SUPPORT</div>
+            <h2>Built for serious training</h2>
+            <p>
+              Olympic-level use requires real sensor validation, personal
+              baselines and human performance oversight.
+            </p>
+          </div>
+        </article>
+      </div>
+      <button className="signout-secondary" onClick={onLogout}>
+        Sign out <span>↗</span>
+      </button>
+    </section>
+  );
+}
+
+function Sidebar({
+  view,
+  onChange,
+  user,
+  onLogout,
+}: {
+  view: View;
+  onChange: (view: View) => void;
+  user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
+  onLogout: () => void;
+}) {
+  return (
+    <aside className="sidebar">
+      <BrandMark />
+      <div className="sidebar-section-label">YOUR PERFORMANCE</div>
+      <nav aria-label="Main navigation" className="side-nav">
+        {navigation.map((item) => (
+          <button
+            key={item}
+            className={view === item ? "active" : ""}
+            onClick={() => onChange(item)}
+          >
+            <NavIcon item={item} />
+            <span>{item}</span>
+            {view === item && <i />}
+          </button>
+        ))}
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="sidebar-device">
+          <span className="device-puck" />
+          <div>
+            <strong>WHOOP MG</strong>
+            <span>
+              <i /> Local mode
+            </span>
+          </div>
+          <b>⌁</b>
+        </div>
+        <div className="sidebar-user">
+          <span className="avatar">
+            {(user.name ?? user.email).slice(0, 1).toUpperCase()}
+          </span>
+          <div>
+            <strong>{user.name ?? user.email}</strong>
+            <span>Personal account</span>
+          </div>
+          <button aria-label="Sign out" onClick={onLogout}>
+            ↗
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Dashboard({
+  user,
+  token,
+  onLogout,
+  demoMode = false,
+}: {
+  user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
+  token: string;
+  onLogout: () => void;
+  demoMode?: boolean;
 }) {
   const [view, setView] = useState<View>("Today");
   const [snapshot, setSnapshot] = useState<AccountSnapshot | null>(null);
@@ -210,7 +756,11 @@ function Dashboard({
     setRefreshing(true);
     setError(null);
     try {
-      setSnapshot(await readAccountSnapshot(token, user));
+      setSnapshot(
+        demoMode
+          ? { ...demoSnapshot, lastSync: new Date().toISOString() }
+          : await readAccountSnapshot(token, user),
+      );
     } catch (reason) {
       const message =
         reason instanceof Error
@@ -226,7 +776,6 @@ function Dashboard({
 
   useEffect(() => {
     void refresh();
-    // A token refresh is user-driven by design; this effect runs once per sign-in.
   }, []);
 
   const metricMap = useMemo(
@@ -239,9 +788,24 @@ function Dashboard({
       ),
     [snapshot],
   );
+  const recovery = metricMap.get("recovery")?.value;
+  const sleepPerformance =
+    metricMap.get("sleep_performance")?.value ?? metricMap.get("sleep")?.value;
+  const sleepDuration = metricMap.get("sleep_duration")?.value;
+  const strain = metricMap.get("strain")?.value;
+  const firstName = (user.name ?? user.email).split(" ")[0];
+  const storageLabel =
+    snapshot?.storage === "server" ? "Private service" : "Local mode";
+  const statusLabel = snapshot?.dataAvailable
+    ? "All systems ready"
+    : (snapshot?.message ?? "Waiting for your first sync");
+  const activePage =
+    view === "Coach" || view === "More" ? null : pageCopy[view];
   const visibleDefinitions =
     view === "Recovery"
-      ? definitions.filter((item) => ["hrv", "rhr", "spo2"].includes(item.key))
+      ? definitions.filter((item) =>
+          ["hrv", "rhr", "spo2", "skin_temperature"].includes(item.key),
+        )
       : view === "Sleep"
         ? definitions.filter((item) =>
             ["sleep_duration", "respiratory_rate", "skin_temperature"].includes(
@@ -253,253 +817,239 @@ function Dashboard({
               ["strain", "heart_rate", "battery"].includes(item.key),
             )
           : definitions;
-  const recovery = metricMap.get("recovery")?.value;
-  const sleep =
-    metricMap.get("sleep")?.value ?? metricMap.get("sleep_performance")?.value;
-  const strain = metricMap.get("strain")?.value;
-  const firstName = (user.name ?? user.email).split(" ")[0];
-  const storageLabel =
-    snapshot?.storage === "server" ? "Private service" : "NOOP local mode";
-  const statusLabel = snapshot?.dataAvailable
-    ? "All systems ready"
-    : (snapshot?.message ?? "Waiting for your first sync");
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="brand-lockup">
-          <div className="whoop-wordmark">
-            WHOOP <span>MG</span>
+      <Sidebar view={view} onChange={setView} user={user} onLogout={onLogout} />
+      <div className="app-main">
+        <header className="topbar">
+          <div className="mobile-brand">
+            <BrandMark compact />
           </div>
-          <span className="topbar-context">PERSONAL PERFORMANCE</span>
-        </div>
-        <div className="user-chip">
-          <span className="avatar">
-            {(user.name ?? user.email).slice(0, 1).toUpperCase()}
-          </span>
-          <span className="user-email">{user.name ?? user.email}</span>
-          <button className="logout-button" onClick={onLogout}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <main>
-        <section className="welcome-row">
-          <div>
-            <div className="eyebrow">
-              {new Date()
-                .toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                })
-                .toUpperCase()}
+          <div className="topbar-date">
+            {new Date()
+              .toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })
+              .toUpperCase()}
+          </div>
+          <div className="topbar-actions">
+            <div className="system-status">
+              <span className="status-dot" />{" "}
+              {snapshot?.dataAvailable ? "LIVE" : "READY"}
             </div>
-            <h1>Good morning, {firstName}</h1>
-            <p>Here&apos;s how your body is doing today.</p>
+            <button
+              className="topbar-sync"
+              onClick={() => void refresh()}
+              disabled={loading || refreshing}
+            >
+              {refreshing ? "SYNCING…" : "SYNC"}
+            </button>
+            <span className="mobile-avatar avatar">
+              {(user.name ?? user.email).slice(0, 1).toUpperCase()}
+            </span>
           </div>
-          <div
-            className={`system-status ${snapshot?.dataAvailable ? "ready" : ""}`}
-          >
-            <span className="status-dot" />{" "}
-            {snapshot?.dataAvailable ? "LIVE" : "READY"}
-          </div>
-        </section>
+        </header>
 
-        <section className="score-grid" aria-label="Today's scores">
-          <article className="score-card recovery-card">
-            <div className="score-card-header">
-              <span>RECOVERY</span>
-              <span>↗</span>
-            </div>
-            <div className="score-body">
-              <ScoreRing value={recovery} tone="recovery" label="Recovery" />
-              <div>
-                <strong className="score-title">
-                  {recovery ? "Ready to perform" : "No score yet"}
-                </strong>
-                <p>
-                  {recovery
-                    ? "Your body is primed for the day."
-                    : "Connect NOOP to start your baseline."}
-                </p>
+        <main>
+          {view === "More" ? (
+            <MoreView user={user} onLogout={onLogout} />
+          ) : view === "Coach" ? (
+            <>
+              <div className="page-heading">
+                <div className="card-kicker">
+                  PRIVATE PERFORMANCE INTELLIGENCE
+                </div>
+                <h1>Talk to your body.</h1>
+                <p>Ask better questions. Make better decisions.</p>
               </div>
-            </div>
-            <div className="score-card-footer">
-              <span>HRV</span>
-              <b>{metricMap.get("hrv")?.value ?? "—"} ms</b>
-              <span>RHR</span>
-              <b>{metricMap.get("rhr")?.value ?? "—"} bpm</b>
-            </div>
-          </article>
-          <article className="score-card sleep-card">
-            <div className="score-card-header">
-              <span>SLEEP</span>
-              <span>↗</span>
-            </div>
-            <div className="score-body">
-              <ScoreRing value={sleep} tone="sleep" label="Sleep" />
-              <div>
-                <strong className="score-title">
-                  {sleep ? "Sleep complete" : "No sleep yet"}
-                </strong>
-                <p>
-                  {sleep
-                    ? "A clear view of last night."
-                    : "Wear your device overnight."}
-                </p>
+              <CoachPanel user={user} token={token} onLogout={onLogout} />
+            </>
+          ) : (
+            <>
+              <section className="welcome-row">
+                <div>
+                  <div className="eyebrow">{activePage?.eyebrow}</div>
+                  <h1>
+                    {view === "Today"
+                      ? `Good morning, ${firstName}`
+                      : activePage?.title}
+                  </h1>
+                  <p>
+                    {view === "Today"
+                      ? "Here&apos;s how your body is doing today."
+                      : activePage?.description}
+                  </p>
+                </div>
+                <div className="welcome-meta">
+                  <span className="today-chip">
+                    TODAY <b>—</b>
+                  </span>
+                  <span className="status-copy">
+                    {snapshot?.dataAvailable
+                      ? "Data is current"
+                      : "Waiting for your first sync"}
+                  </span>
+                </div>
+              </section>
+              <section className="score-grid" aria-label="Today's scores">
+                <ScoreCard
+                  label="RECOVERY"
+                  onOpen={() => setView("Recovery")}
+                  value={recovery}
+                  tone="recovery"
+                  focused={view === "Recovery"}
+                  title={recovery ? "Ready to perform" : "No score yet"}
+                  description={
+                    recovery
+                      ? "Your body is primed for the day."
+                      : "Connect the local engine to start your baseline."
+                  }
+                  footer={[
+                    "HRV",
+                    `${metricMap.get("hrv")?.value ?? "—"} ms`,
+                    "RHR",
+                    `${metricMap.get("rhr")?.value ?? "—"} bpm`,
+                  ]}
+                />
+                <ScoreCard
+                  label="SLEEP"
+                  onOpen={() => setView("Sleep")}
+                  value={sleepPerformance}
+                  tone="sleep"
+                  focused={view === "Sleep"}
+                  title={sleepPerformance ? "Sleep complete" : "No sleep yet"}
+                  description={
+                    sleepPerformance
+                      ? "A clear view of last night."
+                      : "Wear your device overnight."
+                  }
+                  footer={[
+                    "LAST NIGHT",
+                    sleepDuration ? `${sleepDuration} h` : "—",
+                    "STATUS",
+                    sleepPerformance ? "MEASURED" : "WAITING",
+                  ]}
+                />
+                <ScoreCard
+                  label="STRAIN"
+                  onOpen={() => setView("Strain")}
+                  value={strain}
+                  tone="strain"
+                  focused={view === "Strain"}
+                  title={strain ? "Day in progress" : "No strain yet"}
+                  description={
+                    strain
+                      ? "Keep an eye on your daily load."
+                      : "Your activity will appear here."
+                  }
+                  footer={[
+                    "HEART RATE",
+                    `${metricMap.get("heart_rate")?.value ?? "—"} bpm`,
+                    "GOAL",
+                    "BUILDING",
+                  ]}
+                />
+              </section>
+              <section className="sync-bar">
+                <div className="sync-icon">⌁</div>
+                <div>
+                  <strong>{statusLabel}</strong>
+                  <p>
+                    {storageLabel} · data is scoped to this signed-in account
+                  </p>
+                </div>
+                <button
+                  onClick={() => void refresh()}
+                  disabled={loading || refreshing}
+                >
+                  {refreshing ? "SYNCING…" : "SYNC NOW"}
+                </button>
+              </section>
+              {error && (
+                <div className="error-message" role="alert">
+                  {error}
+                </div>
+              )}
+              <section className="section-heading">
+                <div>
+                  <div className="card-kicker">HEALTH MONITOR</div>
+                  <h2>{activePage?.title}</h2>
+                </div>
+                <span>
+                  {snapshot?.dataAvailable
+                    ? "Measured and derived data"
+                    : "No data yet"}
+                </span>
+              </section>
+              {loading ? (
+                <section className="empty-state">
+                  <div className="loading-dots">•••</div>
+                  <h3>Preparing your dashboard</h3>
+                  <p>
+                    Nothing is displayed until this signed-in account is ready.
+                  </p>
+                </section>
+              ) : (
+                <section className="metrics-grid">
+                  {visibleDefinitions.map((definition) => (
+                    <MetricCard
+                      key={definition.key}
+                      definition={definition}
+                      metric={metricMap.get(definition.key)}
+                    />
+                  ))}
+                </section>
+              )}
+              <TrendCard hasData={Boolean(snapshot?.dataAvailable)} />
+              <div className="privacy-note">
+                <span>⌾</span>
+                <div>
+                  <strong>Data stays private</strong>
+                  <p>
+                    Google Drive and Google Sheets are not exposed to this user
+                    interface. Storage is handled by the local engine or
+                    authenticated private service.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="score-card-footer">
-              <span>LAST NIGHT</span>
-              <b>{sleep ? `${sleep} h` : "—"}</b>
-              <span>STATUS</span>
-              <b>{sleep ? "MEASURED" : "WAITING"}</b>
-            </div>
-          </article>
-          <article className="score-card strain-card">
-            <div className="score-card-header">
-              <span>STRAIN</span>
-              <span>↗</span>
-            </div>
-            <div className="score-body">
-              <ScoreRing value={strain} tone="strain" label="Strain" />
-              <div>
-                <strong className="score-title">
-                  {strain ? "Day in progress" : "No strain yet"}
-                </strong>
-                <p>
-                  {strain
-                    ? "Keep an eye on your daily load."
-                    : "Your activity will appear here."}
-                </p>
-              </div>
-            </div>
-            <div className="score-card-footer">
-              <span>HEART RATE</span>
-              <b>{metricMap.get("heart_rate")?.value ?? "—"} bpm</b>
-              <span>GOAL</span>
-              <b>BUILDING</b>
-            </div>
-          </article>
-        </section>
-
-        <section className="sync-bar">
-          <div className="sync-icon">◌</div>
-          <div>
-            <strong>{statusLabel}</strong>
-            <p>{storageLabel} · data is scoped to this signed-in account</p>
-          </div>
-          <button
-            onClick={() => void refresh()}
-            disabled={loading || refreshing}
-          >
-            {refreshing ? "SYNCING…" : "SYNC"}
-          </button>
-        </section>
-
-        {error && (
-          <div className="error-message" role="alert">
-            {error}
-          </div>
-        )}
-        <section className="section-heading">
-          <div>
-            <div className="card-kicker">HEALTH MONITOR</div>
-            <h2>{view === "Today" ? "Today at a glance" : view}</h2>
-          </div>
-          <span>
-            {snapshot?.dataAvailable
-              ? "Measured and derived data"
-              : "No data yet"}
-          </span>
-        </section>
-        {loading ? (
-          <section className="empty-state">
-            <div className="loading-dots">•••</div>
-            <h3>Preparing your dashboard</h3>
-            <p>Nothing is displayed until this signed-in account is ready.</p>
-          </section>
-        ) : (
-          <section className="metrics-grid">
-            {visibleDefinitions.map((definition) => (
-              <MetricCard
-                key={definition.key}
-                definition={definition}
-                metric={metricMap.get(definition.key)}
-              />
-            ))}
-          </section>
-        )}
-
-        <section className="trend-card">
-          <div className="section-heading">
-            <div>
-              <div className="card-kicker">TRENDS</div>
-              <h2>Understand your patterns</h2>
-            </div>
-            <span>30 DAYS</span>
-          </div>
-          <div className="trend-empty">
-            <div className="trend-line" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
-            <strong>
-              {snapshot?.dataAvailable
-                ? "Trend engine ready"
-                : "Your trends start here"}
-            </strong>
-            <p>
-              {snapshot?.dataAvailable
-                ? "More history will make your patterns clearer."
-                : "NOOP will build a personal baseline as you wear your device."}
-            </p>
-          </div>
-        </section>
-        <div className="privacy-note">
-          <span>⌾</span>
-          <div>
-            <strong>Data stays private</strong>
-            <p>
-              Google Drive and Google Sheets are not exposed to this user
-              interface. Storage is handled by NOOP locally or by the
-              authenticated private service.
-            </p>
-          </div>
-        </div>
-      </main>
-
-      <nav className="bottom-nav" aria-label="Main navigation">
-        {(["Today", "Recovery", "Strain", "Sleep", "More"] as View[]).map(
-          (item) => (
+            </>
+          )}
+        </main>
+        <nav className="bottom-nav" aria-label="Mobile navigation">
+          {navigation.map((item) => (
             <button
               key={item}
               className={view === item ? "active" : ""}
               onClick={() => setView(item)}
             >
-              <span
-                className={`nav-icon nav-${item.toLowerCase()}`}
-                aria-hidden="true"
-              />
+              <NavIcon item={item} />
               {item}
             </button>
-          ),
+          ))}
+        </nav>
+        {!isBackendConfigured() && (
+          <div className="local-badge">LOCAL MODE</div>
         )}
-      </nav>
-      {!isBackendConfigured() && <div className="local-badge">NOOP LOCAL</div>}
+      </div>
     </div>
   );
 }
 
 export function App() {
   const auth = useGoogleAuth();
+  const [demoMode, setDemoMode] = useState(false);
+  if (demoMode)
+    return (
+      <Dashboard
+        user={demoUser}
+        token="demo-token"
+        onLogout={() => setDemoMode(false)}
+        demoMode
+      />
+    );
   if (auth.status !== "signed_in" || !auth.user || !auth.accessToken)
     return (
       <AccountGate
@@ -507,6 +1057,7 @@ export function App() {
         status={auth.status}
         error={auth.error}
         onSignIn={() => void auth.signIn()}
+        onDemo={() => setDemoMode(true)}
       />
     );
   return (
