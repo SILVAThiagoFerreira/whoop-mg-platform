@@ -545,12 +545,50 @@ function TrendCard({ hasData }: { hasData: boolean }) {
 
 function MoreView({
   user,
+  token,
   onLogout,
 }: {
   user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
+  token: string;
   onLogout: () => void;
 }) {
   const account = currentLocalAccount();
+  const [desktopState, setDesktopState] = useState<
+    "idle" | "connecting" | "connected" | "unavailable"
+  >("idle");
+  const [desktopMessage, setDesktopMessage] = useState<string | null>(null);
+
+  async function connectDesktop() {
+    if (token.startsWith("local-token:")) {
+      setDesktopState("unavailable");
+      setDesktopMessage("Entre com Google para conectar este navegador ao PC.");
+      return;
+    }
+    setDesktopState("connecting");
+    setDesktopMessage(null);
+    try {
+      const response = await fetch("http://127.0.0.1:8766/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: token }),
+      });
+      const body = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!response.ok || !body.ok)
+        throw new Error(body.error ?? "CONNECT_FAILED");
+      setDesktopState("connected");
+      setDesktopMessage(
+        "Software conectado. A janela do PC deve abrir sua sessão.",
+      );
+    } catch {
+      setDesktopState("unavailable");
+      setDesktopMessage(
+        "Não foi possível localizar o software aberto neste PC. Abra o Whoop Coach e tente novamente.",
+      );
+    }
+  }
 
   return (
     <section className="more-view">
@@ -593,6 +631,40 @@ function MoreView({
             >
               Gerenciar senha da Conta Google ↗
             </a>
+          </div>
+        </article>
+        <article className="settings-card desktop-connect-card">
+          <span className="settings-icon">↔</span>
+          <div>
+            <div className="card-kicker">DESKTOP CONNECTION</div>
+            <h2>Connect this account to the PC</h2>
+            <p>
+              O software Whoop Coach precisa estar aberto neste computador. A
+              conexão é local e usa a sessão Google atual; nenhum token é salvo
+              no site.
+            </p>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => void connectDesktop()}
+              disabled={
+                desktopState === "connecting" || desktopState === "connected"
+              }
+            >
+              {desktopState === "connecting"
+                ? "CONNECTING…"
+                : desktopState === "connected"
+                  ? "CONNECTED"
+                  : "CONNECT TO PC"}
+            </button>
+            {desktopMessage && (
+              <span
+                className={`setting-status desktop-connect-status ${desktopState}`}
+                role="status"
+              >
+                <i /> {desktopMessage}
+              </span>
+            )}
           </div>
         </article>
         <article className="settings-card">
@@ -816,7 +888,7 @@ function Dashboard({
 
         <main>
           {view === "More" ? (
-            <MoreView user={user} onLogout={onLogout} />
+            <MoreView user={user} token={token} onLogout={onLogout} />
           ) : view === "Coach" ? (
             <>
               <div className="page-heading">

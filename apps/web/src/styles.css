@@ -1519,6 +1519,20 @@ main {
   font-size: 11px;
   line-height: 1.5;
 }
+.desktop-connect-card .primary-button {
+  margin-top: 14px;
+}
+.desktop-connect-status {
+  display: flex;
+  margin-top: 12px;
+  line-height: 1.45;
+}
+.desktop-connect-status.connected {
+  color: #257c66;
+}
+.desktop-connect-status.unavailable {
+  color: #9b5a2a;
+}
 @media (max-width: 460px) {
   .app-main {
     padding-right: 12px;

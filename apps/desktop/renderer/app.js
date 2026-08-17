@@ -452,6 +452,12 @@ document.querySelector("#logout")?.addEventListener("click", () => {
   showLogin();
 });
 
+window.whoopDesktop?.onAccountConnected?.((account) => {
+  saveSession(account.email);
+  showApp(account);
+  showView("dashboard");
+});
+
 async function bootstrapSession() {
   const initialSession = readSession();
   try {
@@ -459,9 +465,6 @@ async function bootstrapSession() {
     if (initialSession && account && initialSession.email === account.email)
       showApp(account);
     else showLogin();
-    if (account) {
-      updateAccountPanel(account);
-    }
   } catch {
     showLogin();
   }
