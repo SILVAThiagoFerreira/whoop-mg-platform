@@ -72,6 +72,7 @@ const demoUser = {
   email: "athlete@whoop-mg.local",
   picture: "",
 };
+type AppUser = NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
 
 const demoSnapshot: AccountSnapshot = {
   metrics: [
@@ -255,16 +256,25 @@ function AccountGate({
   status,
   error,
   onSignIn,
+  onLocalSignIn,
   onDemo,
 }: {
   configured: boolean;
   status: string;
   error: string | null;
   onSignIn: () => void;
+  onLocalSignIn: (email: string) => void;
   onDemo: () => void;
 }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const localMode = !configured;
+  const formError = localError ?? error;
+
   return (
-    <div className="account-gate">
+    <div className={`account-gate ${localMode ? "local-mode" : "google-mode"}`}>
       <div className="gate-layout">
         <section className="account-card">
           <div className="account-brand">
@@ -273,13 +283,25 @@ function AccountGate({
           <h2>Sign In</h2>
           <span className="sr-only">Train smarter.</span>
           <span className="sr-only">Private by design</span>
-          <p className="account-lead">
-            Use your performance account to continue.
-          </p>
+          <div className="auth-mode" role="status">
+            <span className="auth-mode-dot" aria-hidden="true" />
+            <span>LOCAL SIGN-IN READY</span>
+          </div>
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              if (configured) onSignIn();
+              setLocalError(null);
+              const normalizedEmail = email.trim().toLowerCase();
+              const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                normalizedEmail,
+              );
+              if (!validEmail || password.trim().length < 4) {
+                setLocalError(
+                  "Enter a valid email and a password of at least 4 characters.",
+                );
+                return;
+              }
+              onLocalSignIn(normalizedEmail);
             }}
           >
             <label className="auth-field">
@@ -288,48 +310,69 @@ function AccountGate({
                 type="email"
                 placeholder="Email address"
                 autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                aria-invalid={Boolean(formError)}
               />
             </label>
             <label className="auth-field password-field">
               <span>Password</span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                aria-invalid={Boolean(formError)}
               />
-              <button type="button" aria-label="Show password">
-                ◉
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((visible) => !visible)}
+              >
+                {showPassword ? "◉" : "◌"}
               </button>
             </label>
             <a className="forgot-link" href="#forgot-password">
               Forgot Password?
             </a>
-            {error && (
+            {formError && (
               <div className="error-message" role="alert">
-                {error}
+                {formError}
               </div>
             )}
-            <button
-              className="google-button"
-              type="submit"
-              disabled={!configured || status === "loading"}
-            >
-              {status === "loading" ? "OPENING…" : "SIGN IN"}
+            <button className="auth-submit" type="submit">
+              SIGN IN
             </button>
           </form>
-          {!configured && (
+          {configured && (
+            <button
+              className="google-button"
+              type="button"
+              onClick={onSignIn}
+              disabled={status === "loading"}
+            >
+              {status === "loading" ? "CONNECTING…" : "CONTINUE WITH GOOGLE"}
+            </button>
+          )}
+          {localMode && (
             <div className="setup-warning">
-              <strong>Login ainda não configurado</strong>
+              <strong>Google sign-in is off in this local build</strong>
               <p>
-                Configure <code>VITE_GOOGLE_CLIENT_ID</code> no build do Pages.
+                Configure <code>VITE_GOOGLE_CLIENT_ID</code> for account access.
               </p>
             </div>
           )}
-          {!configured && (
-            <button className="demo-button" onClick={onDemo}>
-              EXPLORE DEMO DATA
+          <div className="demo-entry">
+            <div>
+              <span className="demo-kicker">NO ACCOUNT NEEDED</span>
+              <p>Explore the WHOOP MG experience with sample data.</p>
+            </div>
+            <button className="demo-button" type="button" onClick={onDemo}>
+              EXPLORE DEMO <span aria-hidden="true">↗</span>
             </button>
-          )}
+          </div>
           <p className="account-disclaimer">
             Private by design · no Drive or Sheets permission is requested.
           </p>
@@ -1030,8 +1073,10 @@ function Dashboard({
             </button>
           ))}
         </nav>
-        {!isBackendConfigured() && (
-          <div className="local-badge">LOCAL MODE</div>
+        {(demoMode || !isBackendConfigured()) && (
+          <div className="local-badge">
+            {demoMode ? "DEMO MODE · LOCAL" : "LOCAL MODE"}
+          </div>
         )}
       </div>
     </div>
@@ -1041,12 +1086,17 @@ function Dashboard({
 export function App() {
   const auth = useGoogleAuth();
   const [demoMode, setDemoMode] = useState(false);
-  if (demoMode)
+  const [localUser, setLocalUser] = useState<AppUser | null>(null);
+  const leaveLocalSession = () => {
+    setLocalUser(null);
+    setDemoMode(false);
+  };
+  if (demoMode || localUser)
     return (
       <Dashboard
-        user={demoUser}
-        token="demo-token"
-        onLogout={() => setDemoMode(false)}
+        user={localUser ?? demoUser}
+        token={localUser ? `local-token:${localUser.sub}` : "demo-token"}
+        onLogout={leaveLocalSession}
         demoMode
       />
     );
@@ -1057,6 +1107,14 @@ export function App() {
         status={auth.status}
         error={auth.error}
         onSignIn={() => void auth.signIn()}
+        onLocalSignIn={(email) =>
+          setLocalUser({
+            sub: `local-${email}`,
+            name: email.split("@")[0] || "Local Athlete",
+            email,
+            picture: "",
+          })
+        }
         onDemo={() => setDemoMode(true)}
       />
     );

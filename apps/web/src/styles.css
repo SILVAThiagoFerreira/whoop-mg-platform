@@ -1134,6 +1134,7 @@ main {
   font-size: 10px;
   line-height: 1.5;
 }
+.auth-submit,
 .google-button {
   width: 100%;
   display: flex;
@@ -1489,6 +1490,26 @@ main {
 .account-card .account-lead {
   display: none;
 }
+.auth-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: -7px 0 22px;
+  color: #777;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.auth-mode-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #111;
+}
+.local-mode .auth-mode-dot {
+  background: #d39a2f;
+}
 .account-card form {
   display: grid;
   gap: 20px;
@@ -1541,7 +1562,7 @@ main {
   text-align: center;
   text-decoration: underline;
 }
-.account-card .google-button {
+.account-card .auth-submit {
   min-height: 48px;
   border: 2px solid #111;
   border-radius: 15px;
@@ -1552,11 +1573,24 @@ main {
   letter-spacing: 0.12em;
   justify-content: center;
 }
+.account-card .google-button {
+  min-height: 44px;
+  margin-top: 13px;
+  padding: 11px 15px;
+  border: 1px solid #c8c8c8;
+  border-radius: 5px;
+  background: #f7f7f7;
+  color: #111;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  justify-content: center;
+}
 .account-card .google-button:disabled {
   border-color: #9c9c9c;
   color: #777;
-  background: #fff;
-  opacity: 1;
+  background: #f7f7f7;
+  opacity: 0.65;
 }
 .account-card .setup-warning {
   margin: 19px 0 0;
@@ -1568,10 +1602,30 @@ main {
 .account-card .setup-warning p {
   color: #777;
 }
+.demo-entry {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 21px;
+  padding-top: 19px;
+  border-top: 1px solid #e5e5e5;
+}
+.demo-entry p {
+  margin: 5px 0 0;
+  color: #777;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.demo-kicker {
+  color: #111;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
 .demo-button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 12px;
+  flex: 0 0 auto;
+  padding: 11px 12px;
   border: 1px solid #c8c8c8;
   border-radius: 5px;
   background: #fff;
@@ -1579,6 +1633,10 @@ main {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.1em;
+}
+.demo-button span {
+  margin-left: 5px;
+  font-size: 13px;
 }
 .demo-button:hover {
   border-color: #111;
@@ -1746,6 +1804,13 @@ main {
   .account-gate .account-card {
     min-height: 590px;
     padding: 46px 24px 35px;
+  }
+  .demo-entry {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+  .demo-button {
+    width: 100%;
   }
   .account-gate .gate-visual-side {
     min-height: 360px;
