@@ -19,6 +19,7 @@ from .database import counts, init_db
 from .ingestion import ingest_file
 from .google_sync import pull as google_pull, push as google_push, sync_once as google_sync
 from .whoop_api import authorization_url, sync_collections
+from .coach_server import serve as serve_coach
 
 
 def _json(value: object) -> None:
@@ -69,9 +70,15 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("google-pull")
     sub.add_parser("google-push")
     sub.add_parser("google-sync")
+    coach_parser = sub.add_parser("serve-coach")
+    coach_parser.add_argument("--host", default="127.0.0.1")
+    coach_parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args(argv)
     if args.command == "doctor":
         return doctor()
+    if args.command == "serve-coach":
+        serve_coach(args.host, args.port)
+        return 0
     if args.command == "scan":
         try:
             _json(__import__("asyncio").run(scan(args.timeout)))
@@ -83,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         _json({"status": "BLOCKED", "reason": "READ_ONLY_DISCOVERY_FIRST", "detail": "No GATT writes, clock changes, offload commands, firmware or calibration operations are enabled in P0."})
         return 2
     if args.command == "inspect":
-        _json({"status": "USE_SCAN", "address": args.address, "service_hints": {"whoop4_research": "61080001-8d6d-82b8-614a-1c8cb0f8dcc6", "whoop5_research": "fd4b0001-cce1-4033-93ce-002d5875f58a"}, "note": "Research hints from the local NOOP source; not validated for WHOOP MG."})
+        _json({"status": "USE_SCAN", "address": args.address, "service_hints": {"whoop4_research": "61080001-8d6d-82b8-614a-1c8cb0f8dcc6", "whoop5_research": "fd4b0001-cce1-4033-93ce-002d5875f58a"}, "note": "Research hints from an external source; not validated for WHOOP MG."})
         return 0
     if args.command == "devices":
         init_db()

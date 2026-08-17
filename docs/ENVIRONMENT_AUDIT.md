@@ -28,7 +28,7 @@ Auditoria executada em 2026-08-17 no computador local, sem inferências.
 | Rust/Cargo | 1.94.1 |
 | Docker | instalado; daemon não validado |
 | WSL | instalado; distribuição não validada |
-| Ollama | cliente 0.22.0, servidor parado, nenhum modelo confirmado |
+| Ollama | servidor ativo; `qwen3.5:4b` local e `whoop-coach:0.1` confirmados |
 | CUDA toolkit | `nvcc` não encontrado |
 | SQLite | disponível pelo Python |
 
@@ -42,7 +42,7 @@ Auditoria executada em 2026-08-17 no computador local, sem inferências.
 ## Conclusões
 
 1. A máquina suporta SQLite, analytics interpretável e um LLM quantizado pequeno; escolha do modelo exige benchmark real.
-2. A RTX 3060 tem 6 GB de VRAM; Ollama precisa ser iniciado e comparado com fallback CPU.
+2. A RTX 3060 tem 6 GB de VRAM; `whoop-coach:0.1` foi carregado com 100% GPU. A latência e o tool calling ainda precisam de benchmark dedicado.
 3. O adaptador Bluetooth está presente, mas isso não comprova que a WHOOP MG esteja pareada ou anunciando.
 4. Próximo teste físico: `python apps/local-agent/whoop-local.py scan --timeout 12`.
 

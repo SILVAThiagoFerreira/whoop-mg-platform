@@ -6,7 +6,7 @@
 
 ### Personal body intelligence, built local-first.
 
-WHOOP is the sensor. The Alienware is the brain. The local database is the memory. Jarvis is the layer that learns what is normal **for one human**.
+WHOOP is the sensor. The Alienware is the brain. The local database is the memory. Whoop Coach is the layer that learns what is normal **for one human**.
 
 <p>
   <a href="https://silvathiagoferreira.github.io/whoop-mg-platform/"><strong>Open the live PWA</strong></a> ·
@@ -24,7 +24,7 @@ WHOOP is the sensor. The Alienware is the brain. The local database is the memor
 
 </div>
 
-> A private, modular physiology platform inspired by the idea of a personal Jarvis. It is an independent analytics project and is not affiliated with WHOOP.
+> A private, modular physiology platform with a personal physiology coach. It is an independent analytics project and is not affiliated with WHOOP.
 
 ## The idea
 
@@ -51,7 +51,8 @@ The system keeps the sensitive history on the Alienware, builds personal baselin
 | SQLite + RAW | Canonical local memory with provenance | **Working P0** |
 | Analytics | Personal baselines and quality checks | **Working P0** |
 | Body Model | Individual normal, trends, anomalies and evidence | Foundation documented; expanding |
-| Jarvis Core | Tools, memory, interpretation and chat | Architecture defined; implementation next |
+| Whoop Coach | Tools, memory, interpretation and chat | Architecture defined; chat bridge in progress |
+| Desktop | Windows shell for the local agent and Whoop Coach | Installer generated; local integration validated |
 | PWA | Mobile-first interface for iPhone and desktop | Live on GitHub Pages with demo-safe shell |
 | Google | Auxiliary backup and account workspace | Browser has no direct Drive/Sheets access |
 
@@ -102,7 +103,7 @@ This repository deliberately distinguishes shipped behavior from the long-term v
 - A WHOOP MG device has not been confirmed in the local BLE scan.
 - Historical BLE offload is blocked until the real device and protocol are evidenced.
 - Official WHOOP API credentials are still required for live API ingestion.
-- Jarvis local-LLM chat, forecasting and advanced anomaly detection are the next layers.
+- Whoop Coach local-LLM chat, forecasting and advanced anomaly detection are the next layers.
 - No physiological values are fabricated to make the dashboard look “complete”.
 
 See the evidence log in [`docs/STATUS.md`](docs/STATUS.md) and the live plan in [`docs/ROADMAP.md`](docs/ROADMAP.md).
@@ -154,7 +155,7 @@ Every change that reaches `main` must pass the Pages workflow. The repository in
 - The browser receives authorized application responses, not raw storage handles.
 - Secrets and OAuth tokens stay out of the frontend bundle and repository.
 - RAW data is preserved locally for auditability; it is not silently overwritten.
-- The Jarvis tool surface is designed around explicit permissions, schemas and logs.
+- The Whoop Coach tool surface is designed around explicit permissions, schemas and logs.
 - Remote access will use a private network layer such as Tailscale or an equivalent VPN, not an exposed Alienware port.
 
 Read [`docs/SECURITY.md`](docs/SECURITY.md), [`docs/PRIVACY.md`](docs/PRIVACY.md) and [`docs/DATA_ISOLATION.md`](docs/DATA_ISOLATION.md) before enabling remote access or real data sync.
@@ -167,7 +168,7 @@ Read [`docs/SECURITY.md`](docs/SECURITY.md), [`docs/PRIVACY.md`](docs/PRIVACY.md
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system boundaries and data flow.
 - [`DATA_ARCHITECTURE.md`](docs/DATA_ARCHITECTURE.md) — RAW → validated → normalized → processed.
 - [`BODY_MODEL.md`](docs/BODY_MODEL.md) — personal baselines and evidence.
-- [`JARVIS_ARCHITECTURE.md`](docs/JARVIS_ARCHITECTURE.md) — tools, context and orchestration.
+- [`WHOOP_COACH_ARCHITECTURE.md`](docs/WHOOP_COACH_ARCHITECTURE.md) — tools, context and orchestration.
 - [`MEMORY_ARCHITECTURE.md`](docs/MEMORY_ARCHITECTURE.md) — longitudinal memory design.
 </details>
 
@@ -208,7 +209,7 @@ Safe by default          No invented protocol, no exposed secrets, no unsafe wri
 ```text
 P0  Local foundation       ████████████████░░░░  in progress
 P1  Personal intelligence  ██████░░░░░░░░░░░░░░  next
-P2  Jarvis interaction     ██░░░░░░░░░░░░░░░░░░  planned
+P2  Whoop Coach chat       ██░░░░░░░░░░░░░░░░░░  planned
 P3  Context + voice        ░░░░░░░░░░░░░░░░░░░░  future
 ```
 

@@ -2,7 +2,7 @@
 
 ## Estado atual
 
-O frontend não usa mais o token model para Drive/Sheets. O token de identidade fica somente em memória e serve para autenticação. A única ponte opcional é `VITE_WHOOP_API_URL`, que aponta para o adaptador Apps Script executando como proprietário. Se essa variável não existir, o app permanece em modo NOOP local.
+O frontend não usa mais o token model para Drive/Sheets. O token de identidade fica somente em memória e serve para autenticação. A única ponte opcional é `VITE_WHOOP_API_URL`, que aponta para o adaptador Apps Script executando como proprietário. Se essa variável não existir, o app permanece em modo local.
 
 Isso é obrigatório para o requisito de não permitir que usuários abram ou manipulem diretamente a pasta/planilha. Uma SPA não consegue esconder de seu próprio usuário um access token que tenha permissão de Drive.
 

@@ -1,0 +1,27 @@
+{
+  "model_id": "whoop-coach",
+  "version": "0.1",
+  "kind": "local-language-model-wrapper",
+  "base_model": "qwen3.5:4b",
+  "base_model_digest": "2a654d98e6fb",
+  "ollama_tag": "whoop-coach:0.1",
+  "ollama_digest": "74144c388332",
+  "modelfile": "models/llm/Modelfile",
+  "weights_location": "Ollama local model store; not versioned in Git",
+  "license": "Review upstream model license before redistribution",
+  "dataset_version": null,
+  "features": [],
+  "validation_period": null,
+  "metrics": {
+    "response_policy": "concise_default",
+    "max_predict_tokens": 240
+  },
+  "limitations": [
+    "No personal physiology data has been connected",
+    "No tool-calling benchmark has been completed",
+    "This is not a medical model"
+  ],
+  "previous_model": null,
+  "promotion_reason": "Initial private local-language-model recipe",
+  "created_at": "2026-08-17"
+}

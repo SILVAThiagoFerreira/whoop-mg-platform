@@ -19,7 +19,7 @@ o client ID (`aud`) e usa somente o `sub` validado para selecionar o namespace.
 O endpoint aceita apenas `POST { action: "snapshot", accessToken }` e devolve
 agregados; nunca IDs, URLs, tokens, raw BLE ou operações de escrita.
 
-Sem essa variável, o app permanece em modo NOOP local e não toca em nenhum
+Sem essa variável, o app permanece em modo local e não toca em nenhum
 recurso Google.
 
 ## Operação

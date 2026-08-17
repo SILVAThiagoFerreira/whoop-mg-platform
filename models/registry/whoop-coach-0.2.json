@@ -1,0 +1,27 @@
+{
+  "model_id": "whoop-coach",
+  "version": "0.2",
+  "kind": "local-language-model-wrapper",
+  "base_model": "qwen3.5:9b",
+  "base_model_digest": "6488c96fa5fa",
+  "ollama_tag": "whoop-coach:0.2",
+  "ollama_digest": "819a78156ab4",
+  "modelfile": "models/llm/Modelfile.9b",
+  "weights_location": "Ollama local model store; not versioned in Git",
+  "license": "Review upstream model license before redistribution",
+  "dataset_version": null,
+  "status": "candidate",
+  "metrics": {
+    "smoke_test_latency_seconds": 35.55,
+    "response_policy": "concise_default",
+    "max_predict_tokens": 240
+  },
+  "limitations": [
+    "No personal physiology data has been connected",
+    "No task-specific quality benchmark has been completed",
+    "This is not a medical model"
+  ],
+  "previous_model": "whoop-coach:0.1",
+  "promotion_reason": "Higher-capacity candidate for evidence-aware coaching; not promoted until benchmarked",
+  "created_at": "2026-08-17"
+}

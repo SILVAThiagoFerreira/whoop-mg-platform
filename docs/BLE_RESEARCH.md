@@ -14,7 +14,7 @@ Nenhum UUID, pacote, métrica ou comando é validado para WHOOP MG apenas por ap
 | WHOOP 5 | `fd4b0001-cce1-4033-93ce-002d5875f58a` | RESEARCH_ONLY |
 | Heart Rate padrão | `00002a37-0000-1000-8000-00805f9b34fb` | padrão BLE, não prova WHOOP |
 
-O NOOP contém comandos de offload e escrita de relógio. Eles não são usados pelo agente Windows P0. Não executar `SET_CLOCK`, histórico, calibração ou firmware.
+A referência externa contém comandos de offload e escrita de relógio. Eles não são usados pelo agente Windows P0. Não executar `SET_CLOCK`, histórico, calibração ou firmware.
 
 ## Próximo protocolo experimental
 

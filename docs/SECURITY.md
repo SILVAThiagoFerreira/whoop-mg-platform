@@ -4,7 +4,7 @@
 
 O navegador não tem mais escopo `drive.file`, `spreadsheets` ou qualquer chamada direta a Drive/Sheets. A tela também não expõe pasta, planilha, ID ou link do Google.
 
-Quando `VITE_WHOOP_API_URL` estiver vazio, o produto opera em modo local/NOOP e falha fechado: não há fallback para Google Drive. Quando configurado, somente o Apps Script server-side acessa os arquivos do proprietário; ele valida `accessToken`, `aud` e `sub`, ignora IDs enviados pelo cliente e oferece apenas leitura de snapshot.
+Quando `VITE_WHOOP_API_URL` estiver vazio, o produto opera em modo local e falha fechado: não há fallback para Google Drive. Quando configurado, somente o Apps Script server-side acessa os arquivos do proprietário; ele valida `accessToken`, `aud` e `sub`, ignora IDs enviados pelo cliente e oferece apenas leitura de snapshot.
 
 - O repositório Pages contém código e dados demo, nunca saúde pessoal.
 - `.gitignore` bloqueia SQLite, CSV, Parquet, raw, exports, secrets e credenciais.

@@ -4,6 +4,7 @@ import {
   googleClientId,
   requestGoogleAccessToken,
   revokeGoogleToken,
+  sendDesktopAuth,
   type GoogleUser,
 } from "./google";
 
@@ -29,6 +30,7 @@ export function useGoogleAuth() {
     try {
       const token = await requestGoogleAccessToken();
       const user = await fetchGoogleUser(token.access_token);
+      await sendDesktopAuth(token.access_token, user);
       setState({
         status: "signed_in",
         user,

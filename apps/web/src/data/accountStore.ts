@@ -4,7 +4,7 @@ import type { GoogleUser } from "../auth/google";
  * The Pages client deliberately has no Drive or Sheets capability.
  *
  * Health data is either read from a trusted server-side adapter (the API URL
- * is injected at build time) or remains local to NOOP. The browser never gets
+ * is injected at build time) or remains local to the local engine. The browser never gets
  * a file id, spreadsheet id, Drive URL, or a write primitive.
  */
 const API_URL =
@@ -46,7 +46,7 @@ function localSnapshot(): AccountSnapshot {
     dataAvailable: false,
     storage: "local",
     message:
-      "Conecte o NOOP neste dispositivo ou configure o serviço privado para sincronizar.",
+      "Conecte o agente local neste dispositivo ou configure o serviço privado para sincronizar.",
   };
 }
 

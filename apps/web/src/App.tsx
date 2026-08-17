@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGoogleAuth } from "./auth/useGoogleAuth";
 import {
+  createOrVerifyLocalAccount,
+  currentLocalAccount,
+  localAccountError,
+  rememberGoogleAccount,
+  setLocalPassword,
+} from "./auth/localAccount";
+import {
   isBackendConfigured,
   readAccountSnapshot,
   type AccountMetric,
@@ -263,13 +270,19 @@ function AccountGate({
   status: string;
   error: string | null;
   onSignIn: () => void;
-  onLocalSignIn: (email: string) => void;
+  onLocalSignIn: (
+    email: string,
+    password: string,
+    create: boolean,
+  ) => Promise<void>;
   onDemo: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [createAccount, setCreateAccount] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const localMode = !configured;
   const formError = localError ?? error;
 
@@ -297,11 +310,16 @@ function AccountGate({
               );
               if (!validEmail || password.trim().length < 4) {
                 setLocalError(
-                  "Enter a valid email and a password of at least 4 characters.",
+                  "Digite um email válido e uma senha. Para contas novas, use pelo menos 8 caracteres.",
                 );
                 return;
               }
-              onLocalSignIn(normalizedEmail);
+              setSubmitting(true);
+              void onLocalSignIn(normalizedEmail, password, createAccount)
+                .catch((error: unknown) =>
+                  setLocalError(localAccountError(error)),
+                )
+                .finally(() => setSubmitting(false));
             }}
           >
             <label className="auth-field">
@@ -334,18 +352,42 @@ function AccountGate({
                 {showPassword ? "◉" : "◌"}
               </button>
             </label>
-            <a className="forgot-link" href="#forgot-password">
-              Forgot Password?
-            </a>
+            <button
+              className="forgot-link"
+              type="button"
+              onClick={() =>
+                setLocalError(
+                  "Para contas Google, use o Google. Depois de entrar, crie ou altere a senha local em More → Account Security.",
+                )
+              }
+            >
+              {createAccount ? "Use uma conta existente" : "Forgot Password?"}
+            </button>
             {formError && (
               <div className="error-message" role="alert">
                 {formError}
               </div>
             )}
-            <button className="auth-submit" type="submit">
-              SIGN IN
+            <button className="auth-submit" type="submit" disabled={submitting}>
+              {submitting
+                ? "CHECKING…"
+                : createAccount
+                  ? "CREATE ACCOUNT"
+                  : "SIGN IN"}
             </button>
           </form>
+          <button
+            type="button"
+            className="account-mode-link"
+            onClick={() => {
+              setCreateAccount((value) => !value);
+              setLocalError(null);
+            }}
+          >
+            {createAccount
+              ? "Já tenho uma conta local"
+              : "Criar uma senha local"}
+          </button>
           {configured && (
             <button
               className="google-button"
@@ -649,10 +691,42 @@ function TrendCard({ hasData }: { hasData: boolean }) {
 function MoreView({
   user,
   onLogout,
+  onSetPassword,
 }: {
   user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
   onLogout: () => void;
+  onSetPassword: (password: string, currentPassword?: string) => Promise<void>;
 }) {
+  const account = currentLocalAccount();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  async function submitPassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordMessage(null);
+    setPasswordError(null);
+    if (newPassword !== confirmPassword) {
+      setPasswordError("A confirmação da senha não confere.");
+      return;
+    }
+    setSavingPassword(true);
+    try {
+      await onSetPassword(newPassword, currentPassword || undefined);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordMessage("Senha local atualizada nesta instalação.");
+    } catch (error) {
+      setPasswordError(localAccountError(error));
+    } finally {
+      setSavingPassword(false);
+    }
+  }
+
   return (
     <section className="more-view">
       <div className="page-heading">
@@ -670,9 +744,75 @@ function MoreView({
             <div className="card-kicker">ACCOUNT</div>
             <h2>{user.name ?? user.email}</h2>
             <p>
-              Signed in with Google identity. Health data remains scoped to this
-              account.
+              {account?.provider === "google"
+                ? "Conectado com Google. Você também pode criar uma senha local para entrar sem abrir o navegador."
+                : "Conta local protegida por uma senha armazenada somente nesta instalação."}
             </p>
+          </div>
+        </article>
+        <article className="settings-card account-password-card">
+          <span className="settings-icon">⌑</span>
+          <div>
+            <div className="card-kicker">ACCOUNT SECURITY</div>
+            <h2>
+              {account?.passwordHash
+                ? "Alterar senha local"
+                : "Criar senha local"}
+            </h2>
+            <p>
+              Esta não é a senha da sua conta Google. É uma senha de acesso ao
+              WHOOP MG Lab, útil para abrir o desktop mesmo quando o Google
+              estiver indisponível.
+            </p>
+            <form
+              className="account-password-form"
+              onSubmit={(event) => void submitPassword(event)}
+            >
+              {account?.passwordHash && (
+                <input
+                  type="password"
+                  placeholder="Senha atual"
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                />
+              )}
+              <input
+                type="password"
+                placeholder="Nova senha (8+ caracteres)"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Confirme a nova senha"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+              />
+              {passwordError && (
+                <span className="form-message error-message" role="alert">
+                  {passwordError}
+                </span>
+              )}
+              {passwordMessage && (
+                <span className="form-message success-message" role="status">
+                  {passwordMessage}
+                </span>
+              )}
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={savingPassword}
+              >
+                {savingPassword
+                  ? "Saving…"
+                  : account?.passwordHash
+                    ? "Update password"
+                    : "Set password"}
+              </button>
+            </form>
           </div>
         </article>
         <article className="settings-card">
@@ -782,11 +922,13 @@ function Dashboard({
   user,
   token,
   onLogout,
+  onSetPassword,
   demoMode = false,
 }: {
   user: NonNullable<ReturnType<typeof useGoogleAuth>["user"]>;
   token: string;
   onLogout: () => void;
+  onSetPassword: (password: string, currentPassword?: string) => Promise<void>;
   demoMode?: boolean;
 }) {
   const [view, setView] = useState<View>("Today");
@@ -898,7 +1040,11 @@ function Dashboard({
 
         <main>
           {view === "More" ? (
-            <MoreView user={user} onLogout={onLogout} />
+            <MoreView
+              user={user}
+              onLogout={onLogout}
+              onSetPassword={onSetPassword}
+            />
           ) : view === "Coach" ? (
             <>
               <div className="page-heading">
@@ -1087,6 +1233,26 @@ export function App() {
   const auth = useGoogleAuth();
   const [demoMode, setDemoMode] = useState(false);
   const [localUser, setLocalUser] = useState<AppUser | null>(null);
+  useEffect(() => {
+    if (auth.user) void rememberGoogleAccount(auth.user);
+  }, [auth.user]);
+
+  const setPasswordForActiveAccount = async (
+    password: string,
+    currentPassword?: string,
+  ) => {
+    const activeUser = auth.user ?? localUser;
+    if (!activeUser) throw new Error("LOCAL_ACCOUNT_NOT_FOUND");
+    if (!currentLocalAccount()) {
+      if (auth.user) await rememberGoogleAccount(auth.user);
+      else {
+        await createOrVerifyLocalAccount(activeUser.email, password, true);
+        return;
+      }
+    }
+    await setLocalPassword(activeUser.email, password, currentPassword);
+  };
+
   const leaveLocalSession = () => {
     setLocalUser(null);
     setDemoMode(false);
@@ -1097,6 +1263,7 @@ export function App() {
         user={localUser ?? demoUser}
         token={localUser ? `local-token:${localUser.sub}` : "demo-token"}
         onLogout={leaveLocalSession}
+        onSetPassword={setPasswordForActiveAccount}
         demoMode
       />
     );
@@ -1107,14 +1274,19 @@ export function App() {
         status={auth.status}
         error={auth.error}
         onSignIn={() => void auth.signIn()}
-        onLocalSignIn={(email) =>
-          setLocalUser({
-            sub: `local-${email}`,
-            name: email.split("@")[0] || "Local Athlete",
+        onLocalSignIn={async (email, password, create) => {
+          const account = await createOrVerifyLocalAccount(
             email,
+            password,
+            create,
+          );
+          setLocalUser({
+            sub: account.googleSub ?? `local-${email}`,
+            name: account.name,
+            email: account.email,
             picture: "",
-          })
-        }
+          });
+        }}
         onDemo={() => setDemoMode(true)}
       />
     );
@@ -1123,6 +1295,7 @@ export function App() {
       user={auth.user}
       token={auth.accessToken}
       onLogout={auth.signOut}
+      onSetPassword={setPasswordForActiveAccount}
     />
   );
 }

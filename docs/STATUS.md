@@ -3,9 +3,9 @@
 ## Working
 
 Dashboard PWA account-first, identidade Google sem escopo Drive/Sheets, shell
-visual inspirado na experiência WHOOP/NOOP, esquema SQLite, collector seguro,
+visual inspirado em wearables de performance, esquema SQLite, collector seguro,
 adaptador Apps Script read-only, agente local P0, ingestão RAW idempotente,
-baselines pessoais e documentação de segurança.
+baselines pessoais, modelo de linguagem local versionado e documentação de segurança.
 
 ## Verified this run
 
@@ -14,10 +14,22 @@ baselines pessoais e documentação de segurança.
 - `npm run lint`, `typecheck`, `test`, `build` e `format:check`: PASS.
 - `python apps/local-agent/whoop-local.py doctor`: PASS para fundação local.
 - `scan --timeout 8`: PASS read-only; nenhum dispositivo foi identificado como WHOOP MG.
+- Ollama: `qwen3.5:4b` baixado, derivação `whoop-coach:0.1` criada e teste local concluído em GPU.
+- Whoop Coach bridge: `serve-coach` validado com SQLite + Ollama local; desktop Windows empacotado em instalador NSIS.
 
 ## Partial
 
 GitHub Pages foi publicado e verificado no navegador em `https://silvathiagoferreira.github.io/whoop-mg-platform/`; o workflow `.github/workflows/deploy-pages.yml` está ativo. O login exige `VITE_GOOGLE_CLIENT_ID`; dados sincronizados exigem também `VITE_WHOOP_API_URL`. O browser não acessa Drive/Sheets diretamente. Protocolos BLE ainda não foram validados no hardware.
+
+O chat do Pages está implementado, mas depende de `WHOOP_CHAT_URL` apontando
+para uma ponte HTTPS privada do Alienware. Sem VPN/túnel autenticado, somente o
+desktop e o desenvolvimento local podem conversar com o modelo.
+
+O desktop agora expõe uma console local com os painéis Today, Recovery, Sleep,
+Strain e Trends. Ela lê `GET /dashboard` e possui uma ação explícita para a
+cópia auxiliar Google. Isso não significa que o offload BLE esteja concluído:
+`GET /dashboard` informa `ble_offload_status: not_implemented` até a coleta
+histórica ser validada no hardware.
 
 ## Experimental
 
@@ -26,7 +38,7 @@ WHOOP 5.0/MG BLE, histórico offload, ECG/MG, métricas equivalentes a Recovery/
 ## Blocked
 
 Coleta real e upload privado: dependem do pareamento Bluetooth, da validação
-NOOP/hardware e da implantação do adaptador privado.
+hardware e da implantação do adaptador privado.
 
 ## Last successful sync
 
@@ -39,6 +51,13 @@ Nenhuma lacuna real calculada; não há dados locais.
 ## Current milestone
 
 Milestone 1 — fundação local-first executável; início da validação BLE/API.
+
+## High-performance status
+
+O sistema não está liberado para orientar atletas olímpicos ou de competição
+mundial. A arquitetura e os portões de segurança estão documentados em
+`docs/HIGH_PERFORMANCE_READINESS.md`; faltam dados reais, validação BLE,
+isolamento multiatleta, validação dos modelos e revisão humana especializada.
 
 ## Next actions
 

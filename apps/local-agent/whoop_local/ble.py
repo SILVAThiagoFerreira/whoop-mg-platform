@@ -5,7 +5,7 @@ import json
 from typing import Any
 
 
-# Research hints copied from the NOOP linux-capture source in this repository.
+# Research hints copied from an external Linux capture source in this repository.
 # They are not claims of WHOOP MG compatibility and are never used for writes.
 SERVICE_HINTS = {
     "whoop4_research": "61080001-8d6d-82b8-614a-1c8cb0f8dcc6",

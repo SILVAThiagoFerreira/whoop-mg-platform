@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import os
 from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 from .config import database_path
 
 
-SCHEMA_PATH = Path(__file__).resolve().parents[3] / "packages" / "database" / "src" / "schema.sql"
+SCHEMA_PATH = Path(os.getenv("WHOOP_SCHEMA_PATH", str(Path(__file__).resolve().parents[3] / "packages" / "database" / "src" / "schema.sql")))
 
 
 def now_utc() -> str:

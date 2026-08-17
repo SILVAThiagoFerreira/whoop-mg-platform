@@ -27,4 +27,5 @@ tokens.json
 *.p12
 data/*
 !data/.gitkeep
+models/ollama/
 !.github/

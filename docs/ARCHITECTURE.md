@@ -41,7 +41,7 @@ WHOOP BLE / WHOOP API / arquivo / entrada manual
                     ↓
        Analytics / Body Model / ML
                     ↓
-        Memory + Jarvis Core + LLM
+        Memory + Whoop Coach + LLM
                     ↓
        API privada → PWA no iPhone
                     ↓

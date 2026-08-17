@@ -32,10 +32,19 @@ function updateProfile(session) {
   setText("#profile-initial", displayName.charAt(0).toUpperCase() || "W");
 }
 
+function updateAccountPanel(account) {
+  if (!account) return;
+  setText("#account-title", account.hasPassword ? "Change local password" : "Create local password");
+  setText("#account-provider", account.provider === "google" ? (account.hasPassword ? "GOOGLE + LOCAL" : "GOOGLE") : "LOCAL");
+  const currentField = document.querySelector("#account-current-password");
+  if (currentField) currentField.hidden = !account.hasPassword;
+}
+
 function showApp(session) {
   loginScreen.hidden = true;
   appShell.classList.remove("app-hidden");
   updateProfile(session);
+  updateAccountPanel(session);
   checkHealth();
 }
 
@@ -63,6 +72,8 @@ function showView(view) {
   const nextView = pageNames[view] ? view : "dashboard";
   document.querySelectorAll(".nav-item").forEach((item) => item.classList.toggle("active", item.dataset.view === nextView));
   document.querySelectorAll(".view").forEach((section) => section.classList.toggle("active-view", section.id === `${nextView}-view`));
+  const accountPanel = document.querySelector("#account-panel");
+  if (accountPanel) accountPanel.hidden = nextView !== "more";
   setText("#page-label", pageNames[nextView]);
 }
 
@@ -161,14 +172,40 @@ async function askCoach(content) {
   }
 }
 
-loginForm?.addEventListener("submit", (event) => {
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const email = document.querySelector("#login-email")?.value.trim();
   const password = document.querySelector("#login-password")?.value;
-  if (!email || !password) { if (loginError) loginError.textContent = "Enter your local sign-in details to continue."; return; }
-  if (loginError) loginError.textContent = "";
-  saveSession(email);
-  showApp({ email, name: email.split("@")[0] });
+  const create = !readSession() && !await window.whoopDesktop?.getAccount();
+  if (!email || !password) { if (loginError) loginError.textContent = "Enter your email and password to continue."; return; }
+  if (loginError) loginError.textContent = "Checking account…";
+  try {
+    const account = await window.whoopDesktop.signInLocal(email, password, create);
+    if (document.querySelector("#remember-me")?.checked) saveSession(account.email);
+    else localStorage.removeItem("whoop-local-session");
+    if (loginError) loginError.textContent = "";
+    showApp(account);
+  } catch (error) {
+    if (loginError) loginError.textContent = error.message === "ACCOUNT_NOT_FOUND" ? "No local account exists yet. Use Google or create a local account from the web app first." : "The email or password is incorrect.";
+  }
+});
+
+document.querySelector("#google-login")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.innerHTML = '<span class="google-g">G</span> Waiting for Google…';
+  if (loginError) loginError.textContent = "Complete Google sign-in in your browser. This window will update automatically.";
+  try {
+    const account = await window.whoopDesktop.signInGoogle();
+    saveSession(account.email);
+    if (loginError) loginError.textContent = "";
+    showApp(account);
+  } catch (error) {
+    if (loginError) loginError.textContent = error.message === "GOOGLE_LOGIN_TIMEOUT" ? "Google sign-in timed out. Try again." : "Google sign-in could not be completed.";
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="google-g">G</span> Continue with Google <span>↗</span>';
+  }
 });
 
 document.querySelector("#toggle-password")?.addEventListener("click", (event) => {
@@ -181,7 +218,7 @@ document.querySelector("#toggle-password")?.addEventListener("click", (event) =>
 });
 
 document.querySelector("#forgot-password")?.addEventListener("click", () => {
-  if (loginError) loginError.textContent = "Local mode does not send password reset emails. Use any local credentials to continue.";
+  if (loginError) loginError.textContent = "For a Google account, use Continue with Google. After signing in, create or change your local password in More → Account Security.";
 });
 document.querySelectorAll("[data-view]").forEach((item) => item.addEventListener("click", () => showView(item.dataset.view)));
 document.querySelectorAll(".go-coach").forEach((button) => button.addEventListener("click", () => showView("coach")));
@@ -220,6 +257,27 @@ document.querySelector("#scan")?.addEventListener("click", async (event) => {
 document.querySelector("#online")?.addEventListener("click", () => {
   if (window.whoopDesktop?.openOnlineDashboard) window.whoopDesktop.openOnlineDashboard();
 });
+document.querySelector("#profile")?.addEventListener("click", () => showView("more"));
+document.querySelector("#account-password-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.querySelector("#account-password-message");
+  const current = document.querySelector("#account-current-password")?.value || "";
+  const next = document.querySelector("#account-new-password")?.value || "";
+  const confirm = document.querySelector("#account-confirm-password")?.value || "";
+  if (next.length < 8 || next !== confirm) {
+    if (message) message.textContent = next.length < 8 ? "Use at least 8 characters." : "The confirmation does not match.";
+    return;
+  }
+  try {
+    const account = await window.whoopDesktop.setPassword(next, current);
+    if (message) message.textContent = "Local password updated on this computer.";
+    setText("#account-title", "Change local password");
+    setText("#account-provider", account.provider === "google" ? "GOOGLE + LOCAL" : "LOCAL");
+    document.querySelector("#account-password-form")?.reset();
+  } catch (error) {
+    if (message) message.textContent = error.message === "CURRENT_PASSWORD_INVALID" ? "Current password is incorrect." : "Could not update the password.";
+  }
+});
 document.querySelector("#backup-hint")?.addEventListener("click", () => {
   const result = document.querySelector("#sync-result");
   if (result) result.textContent = "Backups are stored in the local data/ directory before sync.";
@@ -246,5 +304,17 @@ document.querySelector("#logout")?.addEventListener("click", () => {
   showLogin();
 });
 
-const initialSession = readSession();
-if (initialSession) showApp(initialSession);
+async function bootstrapSession() {
+  const initialSession = readSession();
+  try {
+    const account = await window.whoopDesktop?.getAccount();
+    if (initialSession && account && initialSession.email === account.email) showApp(account);
+    else showLogin();
+    if (account) {
+      updateAccountPanel(account);
+    }
+  } catch {
+    showLogin();
+  }
+}
+void bootstrapSession();

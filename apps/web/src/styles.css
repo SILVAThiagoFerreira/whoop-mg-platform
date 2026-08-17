@@ -1239,6 +1239,9 @@ main {
   }
 }
 @media (max-width: 760px) {
+  .account-password-card {
+    grid-column: auto;
+  }
   .app-shell {
     display: block;
   }
@@ -1555,6 +1558,9 @@ main {
   font-size: 13px;
 }
 .forgot-link {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   margin-top: -5px;
   color: #111;
   font-size: 12px;
@@ -1644,6 +1650,51 @@ main {
 .account-card .error-message {
   margin: 0;
   font-size: 11px;
+}
+.account-mode-link {
+  width: 100%;
+  margin-top: 10px;
+  color: #4b5d5c;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.account-mode-link:hover {
+  color: #07120e;
+}
+.account-password-card {
+  grid-column: span 2;
+}
+.account-password-card p {
+  max-width: 560px;
+}
+.account-password-form {
+  display: grid;
+  max-width: 520px;
+  gap: 9px;
+  margin-top: 16px;
+}
+.account-password-form input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  padding: 11px 12px;
+  outline: none;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+.account-password-form input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px #a7dcd344;
+}
+.account-password-form .primary-button {
+  justify-self: start;
+}
+.success-message {
+  color: #257c66;
 }
 .account-card .account-security {
   display: none;

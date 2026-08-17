@@ -25,6 +25,7 @@ jobs:
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
           VITE_WHOOP_API_URL: ${{ vars.WHOOP_API_URL }}
+          VITE_WHOOP_CHAT_URL: ${{ vars.WHOOP_CHAT_URL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with: { path: apps/web/dist }

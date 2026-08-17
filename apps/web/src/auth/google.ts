@@ -113,3 +113,41 @@ export function revokeGoogleToken(accessToken: string | null): void {
   if (accessToken && window.google?.accounts.oauth2)
     window.google.accounts.oauth2.revoke(accessToken);
 }
+
+function desktopCallbackUrl(): string | null {
+  const value = new URLSearchParams(window.location.search).get(
+    "desktopCallback",
+  );
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (
+      url.protocol !== "http:" ||
+      !["127.0.0.1", "localhost"].includes(url.hostname) ||
+      !url.port ||
+      url.username ||
+      url.password
+    )
+      return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+export async function sendDesktopAuth(
+  accessToken: string,
+  user: GoogleUser,
+): Promise<boolean> {
+  const callback = desktopCallbackUrl();
+  if (!callback) return false;
+  const response = await fetch(callback, {
+    method: "POST",
+    mode: "cors",
+    keepalive: true,
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify({ accessToken, user }),
+  });
+  if (!response.ok) throw new Error("O desktop não confirmou o login Google.");
+  return true;
+}

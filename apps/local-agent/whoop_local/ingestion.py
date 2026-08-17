@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import uuid
 from contextlib import closing
 from datetime import datetime, timezone
@@ -119,7 +120,17 @@ def ingest_payload(payload: Any, source: str, *, source_cursor: str | None = Non
         if source_cursor:
             connection.execute("INSERT INTO sync_cursors(source, cursor, updated_at) VALUES(?,?,?) ON CONFLICT(source) DO UPDATE SET cursor=excluded.cursor, updated_at=excluded.updated_at", (source, source_cursor, now_utc()))
         connection.commit()
-    return {"import_id": import_id, "raw_id": raw_id, "records": len(records), "inserted": inserted, "issues": issues, "raw_path": str(raw_path), "status": status}
+    result = {"import_id": import_id, "raw_id": raw_id, "records": len(records), "inserted": inserted, "issues": issues, "raw_path": str(raw_path), "status": status}
+    # Opt-in only: local persistence always completes before any network copy.
+    # Importing google_sync lazily avoids a module cycle.
+    if os.getenv("WHOOP_AUTO_GOOGLE_SYNC", "0").strip().lower() in {"1", "true", "yes"}:
+        try:
+            from .google_sync import push
+
+            result["google_push"] = push()
+        except Exception as error:
+            result["google_push"] = {"status": "BLOCKED", "reason": str(error)[:160]}
+    return result
 
 
 def ingest_file(path: Path, source: str) -> dict[str, Any]:

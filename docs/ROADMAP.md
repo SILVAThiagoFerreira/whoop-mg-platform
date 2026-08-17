@@ -11,6 +11,7 @@
 - Ingestão JSON idempotente com RAW e deduplicação.
 - Conector WHOOP API v2 preparado, bloqueado sem credenciais.
 - BLE discovery read-only preparado, sem UUIDs tratados como validados.
+- Modelo local `qwen3.5:4b` instalado no Ollama e derivação `whoop-coach:0.1` criada a partir de receita versionada.
 
 ## IN PROGRESS
 
@@ -22,7 +23,7 @@
 
 - Captura histórica BLE: depende de identificação e teste físico.
 - OAuth WHOOP: depende de client ID, secret e consentimento.
-- LLM local: Ollama está instalado, mas servidor/modelo não estavam disponíveis.
+- Integração do Whoop Coach com ferramentas reais, Body Context Builder e dados fisiológicos.
 - API remota segura: requer decisão operacional entre Tailscale/VPN/Tunnel.
 
 ## NEXT
@@ -32,7 +33,7 @@
 3. Ingerir fixture real anonimizada e comparar API/BLE quando houver.
 4. Criar API local read-only com autenticação e ligar o PWA a ela.
 5. Implementar Body Context Builder, similar days e prediction tracker.
-6. Medir Ollama com modelos compatíveis com RTX 3060 6 GB.
+6. Medir tool calling, latência e qualidade do modelo local com contexto fisiológico sintético.
 
 ## IDEAS
 

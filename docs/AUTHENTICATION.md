@@ -127,6 +127,12 @@ Após a implementação account-first, permanecem estes pontos de hardening ante
 
 Esses pontos são bloqueadores de aceite para dados reais; o modo demo deve continuar sem consultar Drive/Sheets.
 
+## Senha local e desktop
+
+A senha do WHOOP MG Lab é independente da senha da Conta Google. Ela pode ser criada ou alterada em `More → Account Security` no web app, ou no painel de conta do desktop. O Google nunca recebe essa senha e o produto nunca tenta alterar a senha Google.
+
+No desktop, o login Google abre o dashboard publicado no navegador padrão e retorna uma credencial de curta duração por um callback `127.0.0.1` criado somente durante o fluxo. O Electron confirma a identidade com `userinfo`, armazena o perfil no cofre local (`safeStorage`) e não expõe o access token ao renderer nem o persiste em `localStorage`. A senha local usa `scrypt` no processo principal do Electron; no Pages, o armazenamento local usa PBKDF2 para manter a senha fora do texto puro.
+
 ## Critérios de aceite
 
 - [ ] Login não pede Drive/Sheets; conexão de storage é uma ação incremental e mostra escopos.

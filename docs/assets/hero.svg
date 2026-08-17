@@ -36,7 +36,7 @@
     <text x="126" y="479" fill="#0B1017" font-size="17" font-weight="800">LOCAL-FIRST</text>
     <rect x="316" y="446" width="180" height="52" rx="26" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.16"/>
     <text x="350" y="479" fill="#E7ECF5" font-size="17" font-weight="700">OPEN BUILD</text>
-    <text x="96" y="676" fill="#718096" font-size="15" letter-spacing="2">WHOOP → ALIENWARE → BODY MODEL → JARVIS</text>
+    <text x="96" y="676" fill="#718096" font-size="15" letter-spacing="2">WHOOP → ALIENWARE → BODY MODEL → WHOOP COACH</text>
   </g>
   <g filter="url(#shadow)">
     <circle cx="1240" cy="348" r="178" fill="#101925" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
@@ -56,7 +56,7 @@
     <text x="1333" y="144" fill="#B7C4D8">LOCAL DATABASE</text>
     <path d="M1378 160L1330 207" stroke="#9B7BFF" stroke-width="2" stroke-dasharray="5 5"/>
     <rect x="1360" y="538" width="156" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.12"/>
-    <text x="1385" y="566" fill="#B7C4D8">JARVIS CORE</text>
+    <text x="1385" y="566" fill="#B7C4D8">WHOOP COACH</text>
     <path d="M1360 557L1332 492" stroke="#C6FF4A" stroke-width="2" stroke-dasharray="5 5"/>
   </g>
 </svg>
