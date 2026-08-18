@@ -16,12 +16,35 @@
   "build": {
     "appId": "com.whoopcoach.desktop",
     "productName": "Whoop Coach",
-    "files": ["main.cjs", "preload.cjs", "renderer/**"],
-    "extraResources": [
-      { "from": "../local-agent", "to": "local-agent" },
-      { "from": "../../packages/database", "to": "packages/database" },
-      { "from": "../../models", "to": "models" }
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "renderer/**"
     ],
-    "win": { "target": "nsis" }
+    "extraResources": [
+      {
+        "from": "../local-agent",
+        "to": "local-agent"
+      },
+      {
+        "from": "../../packages/database",
+        "to": "packages/database"
+      },
+      {
+        "from": "../../models",
+        "to": "models"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "protocols": [
+      {
+        "name": "Whoop Coach Connection",
+        "schemes": [
+          "whoopcoach"
+        ]
+      }
+    ]
   }
 }

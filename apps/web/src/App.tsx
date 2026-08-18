@@ -589,9 +589,11 @@ function MoreView({
       setDesktopState("unavailable");
       const message = error instanceof Error ? error.message : "";
       setDesktopMessage(
-        message === "The user aborted a request."
+        error instanceof DOMException && error.name === "AbortError"
           ? "O navegador bloqueou a rede local. Use ABRIR DESKTOP LOGIN para concluir no aplicativo."
-          : "Não foi possível conectar. Verifique se o Whoop Coach está aberto e tente novamente.",
+          : message === "The user aborted a request."
+            ? "O navegador bloqueou a rede local. Use ABRIR DESKTOP LOGIN para concluir no aplicativo."
+            : "Não foi possível conectar. Verifique se o Whoop Coach está aberto e tente novamente.",
       );
     } finally {
       window.clearTimeout(timeout);
