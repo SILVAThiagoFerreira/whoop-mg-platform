@@ -5,6 +5,10 @@ const http = require("node:http");
 const crypto = require("node:crypto");
 const { spawn } = require("node:child_process");
 
+const protocolScheme = "whoopcoach";
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!hasSingleInstanceLock) app.quit();
+
 const projectRoot = path.resolve(__dirname, "../..");
 const localAgentScript = app.isPackaged
   ? path.join(process.resourcesPath, "local-agent", "whoop-local.py")
@@ -194,8 +198,52 @@ async function resolveGoogleAccount(accessToken) {
   return publicAccount(account);
 }
 
+function focusWindow() {
+  const window = BrowserWindow.getAllWindows()[0];
+  if (!window) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function connectFromProtocol() {
+  try {
+    const account = await resolveGoogleAccount(await startGoogleLogin());
+    focusWindow();
+    BrowserWindow.getAllWindows()[0]?.webContents.send(
+      "account-connected",
+      account,
+    );
+  } catch (error) {
+    focusWindow();
+    BrowserWindow.getAllWindows()[0]?.webContents.send(
+      "account-connect-error",
+      {
+        error: error instanceof Error ? error.message : "CONNECT_FAILED",
+      },
+    );
+  }
+}
+
+function handleProtocolUrl(value) {
+  const url = String(value || "").toLowerCase();
+  if (url.startsWith(`${protocolScheme}://connect`)) {
+    focusWindow();
+    void connectFromProtocol();
+  }
+}
+
 function startDesktopConnectServer() {
   desktopConnectServer = http.createServer((request, response) => {
+    const sendJson = (status, payload) => {
+      const body = JSON.stringify(payload);
+      response.writeHead(status, {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+        Connection: "close",
+      });
+      response.end(body);
+    };
     const origin = request.headers.origin || "";
     if (desktopConnectOrigins.has(origin)) {
       response.setHeader("Access-Control-Allow-Origin", origin);
@@ -203,9 +251,7 @@ function startDesktopConnectServer() {
     }
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    if (request.headers["access-control-request-private-network"] === "true") {
-      response.setHeader("Access-Control-Allow-Private-Network", "true");
-    }
+    response.setHeader("Access-Control-Allow-Private-Network", "true");
     if (request.method === "OPTIONS") {
       response.writeHead(
         origin && !desktopConnectOrigins.has(origin) ? 403 : 204,
@@ -214,13 +260,15 @@ function startDesktopConnectServer() {
       return;
     }
     if (origin && !desktopConnectOrigins.has(origin)) {
-      response.writeHead(403, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ error: "ORIGIN_NOT_ALLOWED" }));
+      sendJson(403, { error: "ORIGIN_NOT_ALLOWED" });
+      return;
+    }
+    if (request.method === "GET" && request.url === "/health") {
+      sendJson(200, { ok: true, app: "Whoop Coach" });
       return;
     }
     if (request.method !== "POST" || request.url !== "/connect") {
-      response.writeHead(404, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ error: "NOT_FOUND" }));
+      sendJson(404, { error: "NOT_FOUND" });
       return;
     }
     let body = "";
@@ -237,15 +285,11 @@ function startDesktopConnectServer() {
         );
         const window = BrowserWindow.getAllWindows()[0];
         window?.webContents.send("account-connected", account);
-        response.writeHead(200, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ ok: true, account }));
+        sendJson(200, { ok: true, account });
       } catch (error) {
-        response.writeHead(401, { "Content-Type": "application/json" });
-        response.end(
-          JSON.stringify({
-            error: error instanceof Error ? error.message : "CONNECT_FAILED",
-          }),
-        );
+        sendJson(401, {
+          error: error instanceof Error ? error.message : "CONNECT_FAILED",
+        });
       }
     });
   });
@@ -296,6 +340,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  app.setAsDefaultProtocolClient(protocolScheme);
   ipcMain.handle("open-online-dashboard", () =>
     shell.openExternal(onlineDashboard),
   );
@@ -345,9 +390,25 @@ app.whenReady().then(() => {
   startDesktopConnectServer();
   startLocalAgent();
   createWindow();
+  handleProtocolUrl(
+    process.argv.find((argument) =>
+      argument.startsWith(`${protocolScheme}://`),
+    ),
+  );
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+app.on("second-instance", (_event, commandLine) => {
+  handleProtocolUrl(
+    commandLine.find((argument) => argument.startsWith(`${protocolScheme}://`)),
+  );
+});
+
+app.on("open-url", (event, url) => {
+  event.preventDefault();
+  handleProtocolUrl(url);
 });
 
 app.on("before-quit", () => {

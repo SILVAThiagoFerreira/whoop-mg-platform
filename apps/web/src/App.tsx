@@ -566,11 +566,14 @@ function MoreView({
     }
     setDesktopState("connecting");
     setDesktopMessage(null);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
     try {
       const response = await fetch("http://127.0.0.1:8766/connect", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: JSON.stringify({ accessToken: token }),
+        signal: controller.signal,
       });
       const body = (await response.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -582,12 +585,23 @@ function MoreView({
       setDesktopMessage(
         "Software conectado. A janela do PC deve abrir sua sessão.",
       );
-    } catch {
+    } catch (error) {
       setDesktopState("unavailable");
+      const message = error instanceof Error ? error.message : "";
       setDesktopMessage(
-        "Não foi possível localizar o software aberto neste PC. Abra o Whoop Coach e tente novamente.",
+        message === "The user aborted a request."
+          ? "O navegador bloqueou a rede local. Use ABRIR DESKTOP LOGIN para concluir no aplicativo."
+          : "Não foi possível conectar. Verifique se o Whoop Coach está aberto e tente novamente.",
       );
+    } finally {
+      window.clearTimeout(timeout);
     }
+  }
+
+  function openDesktopLogin() {
+    setDesktopState("connecting");
+    setDesktopMessage("Abrindo o Whoop Coach neste computador…");
+    window.location.href = "whoopcoach://connect";
   }
 
   return (
@@ -657,6 +671,15 @@ function MoreView({
                   ? "CONNECTED"
                   : "CONNECT TO PC"}
             </button>
+            {desktopState === "unavailable" && (
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={openDesktopLogin}
+              >
+                ABRIR DESKTOP LOGIN
+              </button>
+            )}
             {desktopMessage && (
               <span
                 className={`setting-status desktop-connect-status ${desktopState}`}

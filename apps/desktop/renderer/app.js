@@ -458,6 +458,14 @@ window.whoopDesktop?.onAccountConnected?.((account) => {
   showView("dashboard");
 });
 
+window.whoopDesktop?.onAccountConnectError?.(({ error } = {}) => {
+  if (loginError)
+    loginError.textContent =
+      error === "ACCOUNT_MISMATCH"
+        ? "Este PC já está vinculado a outra conta Google. Saia dessa conta no Whoop Coach e tente novamente."
+        : "Não foi possível concluir a conexão Google. Tente novamente.";
+});
+
 async function bootstrapSession() {
   const initialSession = readSession();
   try {

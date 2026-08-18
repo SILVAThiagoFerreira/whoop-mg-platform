@@ -13,4 +13,9 @@ contextBridge.exposeInMainWorld("whoopDesktop", {
     ipcRenderer.on("account-connected", listener);
     return () => ipcRenderer.removeListener("account-connected", listener);
   },
+  onAccountConnectError: (callback) => {
+    const listener = (_event, payload) => callback(payload);
+    ipcRenderer.on("account-connect-error", listener);
+    return () => ipcRenderer.removeListener("account-connect-error", listener);
+  },
 });
