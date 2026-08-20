@@ -22,7 +22,9 @@ export type AccountMetric = {
 
 export type AccountSnapshot = {
   metrics: AccountMetric[];
+  history: AccountMetric[];
   lastSync: string | null;
+  updatedAt: string | null;
   collectorStatus: "online" | "offline" | "unknown";
   dataAvailable: boolean;
   storage: "local" | "server";
@@ -41,7 +43,9 @@ export function isBackendConfigured(): boolean {
 function localSnapshot(): AccountSnapshot {
   return {
     metrics: [],
+    history: [],
     lastSync: null,
+    updatedAt: null,
     collectorStatus: "unknown",
     dataAvailable: false,
     storage: "local",
@@ -58,7 +62,9 @@ async function callBackend(
 
   const response = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    // Apps Script Web Apps do not expose a configurable OPTIONS handler. A
+    // simple text request avoids a browser preflight; the body remains JSON.
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
     body: JSON.stringify({
       action: "snapshot",
       accessToken: token,
@@ -78,7 +84,12 @@ async function callBackend(
     throw new Error(
       body.error ?? "Não foi possível carregar os dados privados.",
     );
-  return { ...body.snapshot, storage: "server" };
+  return {
+    ...body.snapshot,
+    history: body.snapshot.history ?? [],
+    updatedAt: body.snapshot.updatedAt ?? body.snapshot.lastSync ?? null,
+    storage: "server",
+  };
 }
 
 export async function readAccountSnapshot(

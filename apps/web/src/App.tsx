@@ -512,7 +512,24 @@ function CoachPanel({
   );
 }
 
-function TrendCard({ hasData }: { hasData: boolean }) {
+function TrendCard({ history }: { history: AccountMetric[] }) {
+  const byDay = new Map<string, { recovery?: number; sleep?: number }>();
+  history.forEach((metric) => {
+    const day = metric.timestamp?.slice(0, 10);
+    if (!day) return;
+    const entry = byDay.get(day) ?? {};
+    const value = Number.parseFloat(metric.value);
+    if (!Number.isFinite(value)) return;
+    if (metric.metric === "recovery") entry.recovery = value;
+    if (metric.metric === "sleep_performance" || metric.metric === "sleep")
+      entry.sleep = value;
+    byDay.set(day, entry);
+  });
+  const points = [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-12);
+  const heights = points.map(([, value]) => value.recovery ?? value.sleep ?? 8);
+  const hasData = points.length > 0;
   return (
     <section className="trend-card">
       <div className="section-heading">
@@ -520,23 +537,31 @@ function TrendCard({ hasData }: { hasData: boolean }) {
           <div className="card-kicker">TRENDS</div>
           <h2>Understand your patterns</h2>
         </div>
-        <span>30 DAYS</span>
+        <span>
+          {hasData ? `${points.length} DAYS · LIVE` : "WAITING FOR DATA"}
+        </span>
       </div>
       <div className="trend-visual" aria-hidden="true">
-        {[22, 38, 31, 50, 45, 67, 56, 78, 70, 82, 68, 88].map(
-          (height, index) => (
-            <i key={index} style={{ height: `${hasData ? height : 10}%` }} />
-          ),
-        )}
+        {(heights.length
+          ? heights
+          : [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+        ).map((height, index) => (
+          <i
+            key={index}
+            style={{
+              height: `${hasData ? Math.max(8, Math.min(100, height)) : 10}%`,
+            }}
+          />
+        ))}
       </div>
       <div className="trend-empty">
         <strong>
-          {hasData ? "Trend engine ready" : "Your trends start here"}
+          {hasData ? "Trend engine receiving data" : "Your trends start here"}
         </strong>
         <p>
           {hasData
-            ? "More history will make your patterns clearer."
-            : "The local engine will build a personal baseline as you wear your device."}
+            ? "This chart is built from timestamped rows in your private Drive-backed workspace."
+            : "The iPhone collector will build your personal baseline as it uploads timestamped observations."}
         </p>
       </div>
     </section>
@@ -830,7 +855,10 @@ function Dashboard({
 
   useEffect(() => {
     void refresh();
-  }, []);
+    if (!isBackendConfigured() || token.startsWith("local-token:")) return;
+    const interval = window.setInterval(() => void refresh(), 15_000);
+    return () => window.clearInterval(interval);
+  }, [token, user.sub]);
 
   const metricMap = useMemo(
     () =>
@@ -1061,11 +1089,17 @@ function Dashboard({
                   ))}
                 </section>
               )}
+              <TrendCard history={snapshot?.history ?? []} />
               <section className="data-note">
-                <strong>Historical trends are unavailable</strong>
+                <strong>
+                  {snapshot?.updatedAt
+                    ? `Live workspace · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`
+                    : "Waiting for the first collector event"}
+                </strong>
                 <p>
-                  This account currently exposes the latest snapshot only. No
-                  chart is shown until a real time-series source is connected.
+                  The dashboard polls the authenticated Drive-backed adapter
+                  every 15 seconds. The browser never receives Drive links or
+                  tokens for storage access.
                 </p>
               </section>
               <div className="privacy-note">
